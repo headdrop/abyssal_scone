@@ -16,6 +16,7 @@
 							<option value="federating">{{ i18n.ts.federating }}</option>
 							<option value="subscribing">{{ i18n.ts.subscribing }}</option>
 							<option value="publishing">{{ i18n.ts.publishing }}</option>
+							<option value="silenced">{{ i18n.ts.silenced }}</option>
 							<option value="suspended">{{ i18n.ts.suspended }}</option>
 							<option value="blocked">{{ i18n.ts.blocked }}</option>
 							<option value="notResponding">{{ i18n.ts.notResponding }}</option>
@@ -76,6 +77,7 @@ const pagination = {
 			state === 'federating' ? { federating: true } :
 			state === 'subscribing' ? { subscribing: true } :
 			state === 'publishing' ? { publishing: true } :
+			state === 'silenced' ? { silenced: true } :
 			state === 'suspended' ? { suspended: true } :
 			state === 'blocked' ? { blocked: true } :
 			state === 'notResponding' ? { notResponding: true } :
@@ -84,6 +86,7 @@ const pagination = {
 };
 
 function getStatus(instance) {
+	if (instance.isSilenced) return 'Silenced';
 	if (instance.isSuspended) return 'Suspended';
 	if (instance.isBlocked) return 'Blocked';
 	if (instance.isNotResponding) return 'Error';

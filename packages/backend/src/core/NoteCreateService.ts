@@ -43,6 +43,7 @@ import { ApRendererService } from '@/core/activitypub/ApRendererService.js';
 import { ApDeliverManagerService } from '@/core/activitypub/ApDeliverManagerService.js';
 import { NoteReadService } from '@/core/NoteReadService.js';
 import { RemoteUserResolveService } from '@/core/RemoteUserResolveService.js';
+import { UtilityService } from '@/core/UtilityService.js';
 import { bindThis } from '@/decorators.js';
 import { DB_MAX_NOTE_TEXT_LENGTH } from '@/const.js';
 import { RoleService } from '@/core/RoleService.js';
@@ -201,6 +202,7 @@ export class NoteCreateService implements OnApplicationShutdown {
 		private roleService: RoleService,
 		private metaService: MetaService,
 		private searchService: SearchService,
+		private utilityService: UtilityService,
 		private notesChart: NotesChart,
 		private perUserNotesChart: PerUserNotesChart,
 		private activeUsersChart: ActiveUsersChart,
@@ -237,6 +239,14 @@ export class NoteCreateService implements OnApplicationShutdown {
 		if (data.channel != null) data.visibility = 'public';
 		if (data.channel != null) data.visibleUsers = [];
 		if (data.channel != null) data.localOnly = true;
+
+		if (user.host !== null) {
+			const instance = await this.instancesRepository.findOneBy({ host: this.utilityService.toPuny(user.host) });
+
+			if (instance !== null && instance.isSilenced) {
+				data.visibility = 'home';
+			}
+		}
 
 		if (data.visibility === 'public' && data.channel == null) {
 			const sensitiveWords = (await this.metaService.fetch()).sensitiveWords;

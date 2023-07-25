@@ -75,6 +75,12 @@ export class Instance {
 	})
 	public isNotResponding: boolean;
 
+	@Index()
+	@Column('boolean', {
+		default: false,
+	})
+	public isSilenced: boolean;
+
 	/**
 	 * このインスタンスへの配信を停止するか
 	 */

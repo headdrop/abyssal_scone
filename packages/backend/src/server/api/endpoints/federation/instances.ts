@@ -30,6 +30,7 @@ export const paramDef = {
 		host: { type: 'string', nullable: true, description: 'Omit or use `null` to not filter by host.' },
 		blocked: { type: 'boolean', nullable: true },
 		notResponding: { type: 'boolean', nullable: true },
+		silenced: { type: 'boolean', nullable: true },
 		suspended: { type: 'boolean', nullable: true },
 		federating: { type: 'boolean', nullable: true },
 		subscribing: { type: 'boolean', nullable: true },
@@ -87,6 +88,14 @@ export default class extends Endpoint<typeof meta, typeof paramDef> {
 					query.andWhere('instance.isNotResponding = TRUE');
 				} else {
 					query.andWhere('instance.isNotResponding = FALSE');
+				}
+			}
+
+			if (typeof ps.silenced === 'boolean') {
+				if (ps.silenced) {
+					query.andWhere('instance.isSilenced = TRUE');
+				} else {
+					query.andWhere('instance.isSilenced = FALSE');
 				}
 			}
 
