@@ -29,6 +29,7 @@
 			<FormSection v-if="iAmModerator">
 				<template #label>Moderation</template>
 				<div class="_gaps_s">
+					<MkSwitch v-model="silenced" @update:modelValue="toggleSilence">{{ i18n.ts.silenceThisInstance }}</MkSwitch>
 					<MkSwitch v-model="suspended" @update:modelValue="toggleSuspend">{{ i18n.ts.stopActivityDelivery }}</MkSwitch>
 					<MkSwitch v-model="isBlocked" @update:modelValue="toggleBlock">{{ i18n.ts.blockThisInstance }}</MkSwitch>
 					<MkButton @click="refreshMetadata"><i class="ti ti-refresh"></i> Refresh metadata</MkButton>
@@ -140,6 +141,7 @@ let tab = $ref('overview');
 let chartSrc = $ref('instance-requests');
 let meta = $ref<misskey.entities.DetailedInstanceMetadata | null>(null);
 let instance = $ref<misskey.entities.Instance | null>(null);
+let silenced = $ref(false);
 let suspended = $ref(false);
 let isBlocked = $ref(false);
 let faviconUrl = $ref(null);
@@ -159,6 +161,7 @@ async function fetch() {
 	instance = await os.api('federation/show-instance', {
 		host: props.host,
 	});
+	silenced = instance.isSilenced;
 	suspended = instance.isSuspended;
 	isBlocked = instance.isBlocked;
 	faviconUrl = getProxiedImageUrlNullable(instance.faviconUrl, 'preview') ?? getProxiedImageUrlNullable(instance.iconUrl, 'preview');
@@ -175,6 +178,13 @@ async function toggleSuspend(v) {
 	await os.api('admin/federation/update-instance', {
 		host: instance.host,
 		isSuspended: suspended,
+	});
+}
+
+async function toggleSilence(v) {
+	await os.api('admin/federation/update-instance', {
+		host: instance.host,
+		isSilenced: silenced,
 	});
 }
 

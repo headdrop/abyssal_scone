@@ -194,6 +194,7 @@ export interface Locale {
     "charts": string;
     "perHour": string;
     "perDay": string;
+    "silenceThisInstance": string;
     "stopActivityDelivery": string;
     "blockThisInstance": string;
     "operations": string;
@@ -233,6 +234,7 @@ export interface Locale {
     "federating": string;
     "blocked": string;
     "suspended": string;
+    "silenced": string;
     "all": string;
     "subscribing": string;
     "publishing": string;

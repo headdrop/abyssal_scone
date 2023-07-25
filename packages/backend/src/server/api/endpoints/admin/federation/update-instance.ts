@@ -16,9 +16,10 @@ export const paramDef = {
 	type: 'object',
 	properties: {
 		host: { type: 'string' },
+		isSilenced: { type: 'boolean' },
 		isSuspended: { type: 'boolean' },
 	},
-	required: ['host', 'isSuspended'],
+	required: ['host'],
 } as const;
 
 // eslint-disable-next-line import/no-default-export
@@ -39,6 +40,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> {
 			}
 
 			this.federatedInstanceService.update(instance.id, {
+				isSilenced: ps.isSilenced,
 				isSuspended: ps.isSuspended,
 			});
 		});
