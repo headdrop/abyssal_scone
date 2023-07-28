@@ -135,6 +135,13 @@ export type NoteUpdatedEvent = {
 	};
 } | {
 	id: Note['id'];
+	type: 'updated';
+	body: {
+		updatedAt: string;
+		visibility: string;
+	};
+} | {
+	id: Note['id'];
 	type: 'pollVoted';
 	body: {
 		choice: number;

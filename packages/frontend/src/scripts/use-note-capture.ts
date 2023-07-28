@@ -2,6 +2,7 @@ import { onUnmounted, Ref } from 'vue';
 import * as misskey from 'misskey-js';
 import { useStream } from '@/stream';
 import { $i } from '@/account';
+import { defaultStore } from '@/store';
 
 export function useNoteCapture(props: {
 	rootEl: Ref<HTMLElement>;
@@ -68,6 +69,14 @@ export function useNoteCapture(props: {
 
 			case 'deleted': {
 				props.isDeletedRef.value = true;
+				break;
+			}
+
+			case 'updated': {
+				note.value.visibility = body.visibility;
+				if ((defaultStore.reactiveState.tl.value.src === 'local' || defaultStore.reactiveState.tl.value.src === 'global') && note.value.visibility !== 'public') {
+					props.isDeletedRef.value = true;
+				}
 				break;
 			}
 		}

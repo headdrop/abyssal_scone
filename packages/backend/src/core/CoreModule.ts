@@ -28,6 +28,7 @@ import { NoteCreateService } from './NoteCreateService.js';
 import { NoteDeleteService } from './NoteDeleteService.js';
 import { NotePiningService } from './NotePiningService.js';
 import { NoteReadService } from './NoteReadService.js';
+import { NoteUpdateService } from './NoteUpdateService.js';
 import { NotificationService } from './NotificationService.js';
 import { PollService } from './PollService.js';
 import { PushNotificationService } from './PushNotificationService.js';
@@ -151,6 +152,7 @@ const $NoteCreateService: Provider = { provide: 'NoteCreateService', useExisting
 const $NoteDeleteService: Provider = { provide: 'NoteDeleteService', useExisting: NoteDeleteService };
 const $NotePiningService: Provider = { provide: 'NotePiningService', useExisting: NotePiningService };
 const $NoteReadService: Provider = { provide: 'NoteReadService', useExisting: NoteReadService };
+const $NoteUpdateService: Provider = { provide: 'NoteUpdateService', useExisting: NoteUpdateService };
 const $NotificationService: Provider = { provide: 'NotificationService', useExisting: NotificationService };
 const $PollService: Provider = { provide: 'PollService', useExisting: PollService };
 const $ProxyAccountService: Provider = { provide: 'ProxyAccountService', useExisting: ProxyAccountService };
@@ -278,6 +280,7 @@ const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting
 		NoteDeleteService,
 		NotePiningService,
 		NoteReadService,
+		NoteUpdateService,
 		NotificationService,
 		PollService,
 		ProxyAccountService,
@@ -398,6 +401,7 @@ const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting
 		$NoteDeleteService,
 		$NotePiningService,
 		$NoteReadService,
+		$NoteUpdateService,
 		$NotificationService,
 		$PollService,
 		$ProxyAccountService,
@@ -519,6 +523,7 @@ const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting
 		NoteDeleteService,
 		NotePiningService,
 		NoteReadService,
+		NoteUpdateService,
 		NotificationService,
 		PollService,
 		ProxyAccountService,
@@ -638,6 +643,7 @@ const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting
 		$NoteDeleteService,
 		$NotePiningService,
 		$NoteReadService,
+		$NoteUpdateService,
 		$NotificationService,
 		$PollService,
 		$ProxyAccountService,

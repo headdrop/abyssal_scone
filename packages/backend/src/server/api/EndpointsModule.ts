@@ -275,6 +275,7 @@ import * as ep___notes_threadMuting_delete from './endpoints/notes/thread-muting
 import * as ep___notes_timeline from './endpoints/notes/timeline.js';
 import * as ep___notes_translate from './endpoints/notes/translate.js';
 import * as ep___notes_unrenote from './endpoints/notes/unrenote.js';
+import * as ep___notes_update from './endpoints/notes/update.js';
 import * as ep___notes_userListTimeline from './endpoints/notes/user-list-timeline.js';
 import * as ep___notifications_create from './endpoints/notifications/create.js';
 import * as ep___notifications_markAllAsRead from './endpoints/notifications/mark-all-as-read.js';
@@ -620,6 +621,7 @@ const $notes_threadMuting_delete: Provider = { provide: 'ep:notes/thread-muting/
 const $notes_timeline: Provider = { provide: 'ep:notes/timeline', useClass: ep___notes_timeline.default };
 const $notes_translate: Provider = { provide: 'ep:notes/translate', useClass: ep___notes_translate.default };
 const $notes_unrenote: Provider = { provide: 'ep:notes/unrenote', useClass: ep___notes_unrenote.default };
+const $notes_update: Provider = { provide: 'ep:notes/update', useClass: ep___notes_update.default };
 const $notes_userListTimeline: Provider = { provide: 'ep:notes/user-list-timeline', useClass: ep___notes_userListTimeline.default };
 const $notifications_create: Provider = { provide: 'ep:notifications/create', useClass: ep___notifications_create.default };
 const $notifications_markAllAsRead: Provider = { provide: 'ep:notifications/mark-all-as-read', useClass: ep___notifications_markAllAsRead.default };
@@ -969,6 +971,7 @@ const $retention: Provider = { provide: 'ep:retention', useClass: ep___retention
 		$notes_timeline,
 		$notes_translate,
 		$notes_unrenote,
+		$notes_update,
 		$notes_userListTimeline,
 		$notifications_create,
 		$notifications_markAllAsRead,
@@ -1312,6 +1315,7 @@ const $retention: Provider = { provide: 'ep:retention', useClass: ep___retention
 		$notes_timeline,
 		$notes_translate,
 		$notes_unrenote,
+		$notes_update,
 		$notes_userListTimeline,
 		$notifications_create,
 		$notifications_markAllAsRead,

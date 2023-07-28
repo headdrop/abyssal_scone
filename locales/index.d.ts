@@ -48,6 +48,8 @@ export interface Locale {
     "unpin": string;
     "copyContent": string;
     "copyLink": string;
+    "changeVisibility": string;
+    "changeVisibilityConfirm": string;
     "delete": string;
     "deleteAndEdit": string;
     "deleteAndEditConfirm": string;
