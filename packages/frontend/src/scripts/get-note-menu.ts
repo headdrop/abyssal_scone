@@ -103,6 +103,20 @@ export function getNoteMenu(props: {
 
 	const appearNote = isRenote ? props.note.renote as misskey.entities.Note : props.note;
 
+	function changeVisibility(visibility): void {
+		os.confirm({
+			type: 'warning',
+			text: i18n.ts.changeVisibilityConfirm,
+		}).then(({ canceled }) => {
+			if (canceled) return;
+
+			os.api('notes/update', {
+				noteId: appearNote.id,
+				visibility: visibility,
+			});
+		});
+	}
+
 	function del(): void {
 		os.confirm({
 			type: 'warning',
@@ -332,8 +346,8 @@ export function getNoteMenu(props: {
 			}]
 			: []
 		),*/
+			null,
 			...(appearNote.userId !== $i.id ? [
-				null,
 				{
 					icon: 'ti ti-exclamation-circle',
 					text: i18n.ts.reportAbuse,
@@ -344,6 +358,31 @@ export function getNoteMenu(props: {
 							initialComment: `Note: ${u}\n-----\n`,
 						}, {}, 'closed');
 					},
+				}]
+			: []
+			),
+			...($i.isModerator || $i.isAdmin ? [
+				{
+					type: 'parent',
+					icon: 'ti ti-world',
+					text: i18n.ts.changeVisibility,
+					children: [{
+						icon: 'ti ti-world',
+						text: i18n.ts._visibility.public,
+						action: () => changeVisibility('public'),
+					}, {
+						icon: 'ti ti-home',
+						text: i18n.ts._visibility.home,
+						action: () => changeVisibility('home'),
+					}, {
+						icon: 'ti ti-lock',
+						text: i18n.ts._visibility.followers,
+						action: () => changeVisibility('followers'),
+					}, {
+						icon: 'ti ti-mail',
+						text: i18n.ts._visibility.specified,
+						action: () => changeVisibility('specified'),
+					}],
 				}]
 			: []
 			),

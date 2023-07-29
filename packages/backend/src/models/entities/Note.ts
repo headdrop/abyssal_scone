@@ -231,6 +231,12 @@ export class Note {
 	public renoteUserHost: string | null;
 	//#endregion
 
+	@Column('timestamp with time zone', {
+		nullable: true,
+		comment: 'The updated date of the Note.',
+	})
+	public updatedAt: Date;
+
 	constructor(data: Partial<Note>) {
 		if (data == null) return;
 
