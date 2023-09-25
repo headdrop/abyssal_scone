@@ -1,8 +1,7 @@
-import { Brackets, In } from 'typeorm';
 import { Injectable, Inject } from '@nestjs/common';
-import type { User, LocalUser, RemoteUser } from '@/models/entities/User.js';
-import type { Note, IMentionedRemoteUsers } from '@/models/entities/Note.js';
-import type { InstancesRepository, NotesRepository, UsersRepository } from '@/models/index.js';
+import type { MiUser } from '@/models/User.js';
+import type { MiNote } from '@/models/Note.js';
+import type { InstancesRepository, NotesRepository, UsersRepository } from '@/models/_.js';
 import { RelayService } from '@/core/RelayService.js';
 import { FederatedInstanceService } from '@/core/FederatedInstanceService.js';
 import { DI } from '@/di-symbols.js';
@@ -53,7 +52,7 @@ export class NoteUpdateService {
 	) {}
 
 	@bindThis
-	async update(user: { id: User['id']; uri: User['uri']; host: User['host']; isBot: User['isBot']; }, note: Note, data: Option) {
+	async update(user: { id: MiUser['id']; uri: MiUser['uri']; host: MiUser['host']; isBot: MiUser['isBot']; }, note: MiNote, data: Option) {
 		const updatedAt = new Date();
 		const cascadingNotes = await this.findCascadingNotes(note);
 
@@ -88,8 +87,8 @@ export class NoteUpdateService {
 	}
 
 	@bindThis
-	private async findCascadingNotes(note: Note): Promise<Note[]> {
-		const recursive = async (noteId: string): Promise<Note[]> => {
+	private async findCascadingNotes(note: MiNote): Promise<MiNote[]> {
+		const recursive = async (noteId: string): Promise<MiNote[]> => {
 			const query = this.notesRepository.createQueryBuilder('note')
 				.where('note.replyId = :noteId', { noteId })
 				.orWhere('note.renoteId = :noteId', { noteId })
@@ -102,7 +101,7 @@ export class NoteUpdateService {
 			].flat();
 		};
 
-		const cascadingNotes: Note[] = await recursive(note.id);
+		const cascadingNotes: MiNote[] = await recursive(note.id);
 
 		return cascadingNotes;
 	}

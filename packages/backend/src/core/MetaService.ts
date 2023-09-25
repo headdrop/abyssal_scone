@@ -8,7 +8,7 @@ import { DataSource } from 'typeorm';
 import * as Redis from 'ioredis';
 import { ModuleRef } from '@nestjs/core';
 import { DI } from '@/di-symbols.js';
-import { MiMeta } from '@/models/entities/Meta.js';
+import { MiMeta } from '@/models/Meta.js';
 import { GlobalEventService } from '@/core/GlobalEventService.js';
 import { ServerStatsService } from '@/daemons/ServerStatsService.js';
 import { bindThis } from '@/decorators.js';
@@ -19,7 +19,7 @@ import type { OnApplicationShutdown } from '@nestjs/common';
 export class MetaService implements OnApplicationShutdown {
 	private serverStatsService: ServerStatsService;
 	private cache: MiMeta | undefined;
-	private intervalId: NodeJS.Timer;
+	private intervalId: NodeJS.Timeout;
 
 	constructor(
 		private moduleRef: ModuleRef,

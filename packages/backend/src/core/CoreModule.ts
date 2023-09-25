@@ -45,7 +45,7 @@ import { RelayService } from './RelayService.js';
 import { RoleService } from './RoleService.js';
 import { S3Service } from './S3Service.js';
 import { SignupService } from './SignupService.js';
-import { TwoFactorAuthenticationService } from './TwoFactorAuthenticationService.js';
+import { WebAuthnService } from './WebAuthnService.js';
 import { UserBlockingService } from './UserBlockingService.js';
 import { CacheService } from './CacheService.js';
 import { UserFollowingService } from './UserFollowingService.js';
@@ -53,12 +53,14 @@ import { UserKeypairService } from './UserKeypairService.js';
 import { UserListService } from './UserListService.js';
 import { UserMutingService } from './UserMutingService.js';
 import { UserSuspendService } from './UserSuspendService.js';
+import { UserAuthService } from './UserAuthService.js';
 import { VideoProcessingService } from './VideoProcessingService.js';
 import { WebhookService } from './WebhookService.js';
 import { ProxyAccountService } from './ProxyAccountService.js';
 import { UtilityService } from './UtilityService.js';
 import { FileInfoService } from './FileInfoService.js';
 import { SearchService } from './SearchService.js';
+import { ClipService } from './ClipService.js';
 import { ChartLoggerService } from './chart/ChartLoggerService.js';
 import FederationChart from './chart/charts/federation.js';
 import NotesChart from './chart/charts/notes.js';
@@ -171,7 +173,7 @@ const $RelayService: Provider = { provide: 'RelayService', useExisting: RelaySer
 const $RoleService: Provider = { provide: 'RoleService', useExisting: RoleService };
 const $S3Service: Provider = { provide: 'S3Service', useExisting: S3Service };
 const $SignupService: Provider = { provide: 'SignupService', useExisting: SignupService };
-const $TwoFactorAuthenticationService: Provider = { provide: 'TwoFactorAuthenticationService', useExisting: TwoFactorAuthenticationService };
+const $WebAuthnService: Provider = { provide: 'WebAuthnService', useExisting: WebAuthnService };
 const $UserBlockingService: Provider = { provide: 'UserBlockingService', useExisting: UserBlockingService };
 const $CacheService: Provider = { provide: 'CacheService', useExisting: CacheService };
 const $UserFollowingService: Provider = { provide: 'UserFollowingService', useExisting: UserFollowingService };
@@ -179,11 +181,13 @@ const $UserKeypairService: Provider = { provide: 'UserKeypairService', useExisti
 const $UserListService: Provider = { provide: 'UserListService', useExisting: UserListService };
 const $UserMutingService: Provider = { provide: 'UserMutingService', useExisting: UserMutingService };
 const $UserSuspendService: Provider = { provide: 'UserSuspendService', useExisting: UserSuspendService };
+const $UserAuthService: Provider = { provide: 'UserAuthService', useExisting: UserAuthService };
 const $VideoProcessingService: Provider = { provide: 'VideoProcessingService', useExisting: VideoProcessingService };
 const $WebhookService: Provider = { provide: 'WebhookService', useExisting: WebhookService };
 const $UtilityService: Provider = { provide: 'UtilityService', useExisting: UtilityService };
 const $FileInfoService: Provider = { provide: 'FileInfoService', useExisting: FileInfoService };
 const $SearchService: Provider = { provide: 'SearchService', useExisting: SearchService };
+const $ClipService: Provider = { provide: 'ClipService', useExisting: ClipService };
 
 const $ChartLoggerService: Provider = { provide: 'ChartLoggerService', useExisting: ChartLoggerService };
 const $FederationChart: Provider = { provide: 'FederationChart', useExisting: FederationChart };
@@ -302,7 +306,7 @@ const $ServerStatsService: Provider = { provide: 'ServerStatsService', useExisti
 		RoleService,
 		S3Service,
 		SignupService,
-		TwoFactorAuthenticationService,
+		WebAuthnService,
 		UserBlockingService,
 		CacheService,
 		UserFollowingService,
@@ -310,11 +314,13 @@ const $ServerStatsService: Provider = { provide: 'ServerStatsService', useExisti
 		UserListService,
 		UserMutingService,
 		UserSuspendService,
+		UserAuthService,
 		VideoProcessingService,
 		WebhookService,
 		UtilityService,
 		FileInfoService,
 		SearchService,
+		ClipService,
 		ChartLoggerService,
 		FederationChart,
 		NotesChart,
@@ -425,7 +431,7 @@ const $ServerStatsService: Provider = { provide: 'ServerStatsService', useExisti
 		$RoleService,
 		$S3Service,
 		$SignupService,
-		$TwoFactorAuthenticationService,
+		$WebAuthnService,
 		$UserBlockingService,
 		$CacheService,
 		$UserFollowingService,
@@ -433,11 +439,13 @@ const $ServerStatsService: Provider = { provide: 'ServerStatsService', useExisti
 		$UserListService,
 		$UserMutingService,
 		$UserSuspendService,
+		$UserAuthService,
 		$VideoProcessingService,
 		$WebhookService,
 		$UtilityService,
 		$FileInfoService,
 		$SearchService,
+		$ClipService,
 		$ChartLoggerService,
 		$FederationChart,
 		$NotesChart,
@@ -549,7 +557,7 @@ const $ServerStatsService: Provider = { provide: 'ServerStatsService', useExisti
 		RoleService,
 		S3Service,
 		SignupService,
-		TwoFactorAuthenticationService,
+		WebAuthnService,
 		UserBlockingService,
 		CacheService,
 		UserFollowingService,
@@ -557,11 +565,13 @@ const $ServerStatsService: Provider = { provide: 'ServerStatsService', useExisti
 		UserListService,
 		UserMutingService,
 		UserSuspendService,
+		UserAuthService,
 		VideoProcessingService,
 		WebhookService,
 		UtilityService,
 		FileInfoService,
 		SearchService,
+		ClipService,
 		FederationChart,
 		NotesChart,
 		UsersChart,
@@ -671,7 +681,7 @@ const $ServerStatsService: Provider = { provide: 'ServerStatsService', useExisti
 		$RoleService,
 		$S3Service,
 		$SignupService,
-		$TwoFactorAuthenticationService,
+		$WebAuthnService,
 		$UserBlockingService,
 		$CacheService,
 		$UserFollowingService,
@@ -679,11 +689,13 @@ const $ServerStatsService: Provider = { provide: 'ServerStatsService', useExisti
 		$UserListService,
 		$UserMutingService,
 		$UserSuspendService,
+		$UserAuthService,
 		$VideoProcessingService,
 		$WebhookService,
 		$UtilityService,
 		$FileInfoService,
 		$SearchService,
+		$ClipService,
 		$FederationChart,
 		$NotesChart,
 		$UsersChart,
