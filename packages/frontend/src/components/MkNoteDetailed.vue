@@ -515,6 +515,9 @@ function loadConversation() {
 		conversation.value = res.reverse();
 	});
 }
+
+loadReplies();
+loadConversation();
 </script>
 
 <style lang="scss" module>
