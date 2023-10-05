@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import { VNode, h } from 'vue';
+import { VNode, h, withModifiers } from 'vue';
 import * as mfm from 'mfm-js';
 import * as Misskey from 'misskey-js';
 import MkUrl from '@/components/global/MkUrl.vue';
@@ -252,6 +252,7 @@ export default function(props: {
 					key: Math.random(),
 					url: token.props.url,
 					rel: 'nofollow noopener',
+					onClick: withModifiers(() => {}, ['stop']),
 				})];
 			}
 
@@ -260,6 +261,7 @@ export default function(props: {
 					key: Math.random(),
 					url: token.props.url,
 					rel: 'nofollow noopener',
+					onClick: withModifiers(() => {}, ['stop']),
 				}, genEl(token.children, scale))];
 			}
 
@@ -268,6 +270,7 @@ export default function(props: {
 					key: Math.random(),
 					host: (token.props.host == null && props.author && props.author.host != null ? props.author.host : token.props.host) ?? host,
 					username: token.props.username,
+					onClick: withModifiers(() => {}, ['stop']),
 				})];
 			}
 
@@ -276,6 +279,7 @@ export default function(props: {
 					key: Math.random(),
 					to: isNote ? `/tags/${encodeURIComponent(token.props.hashtag)}` : `/user-tags/${encodeURIComponent(token.props.hashtag)}`,
 					style: 'color:var(--hashtag);',
+					onClick: withModifiers(() => {}, ['stop']),
 				}, `#${token.props.hashtag}`)];
 			}
 
