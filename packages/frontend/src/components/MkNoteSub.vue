@@ -9,14 +9,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<div v-if="note.channel" :class="$style.colorBar" :style="{ background: note.channel.color }"></div>
 		<MkAvatar :class="$style.avatar" :user="note.user" link preview/>
 		<div :class="$style.body">
-			<MkNoteHeader :class="$style.header" :note="note" :mini="true"/>
+			<MkNoteHeader :class="$style.header" :note="note" :mini="true" @click.stop/>
 			<div>
 				<p v-if="note.cw != null" :class="$style.cw">
-					<Mfm v-if="note.cw != ''" style="margin-right: 8px;" :text="note.cw" :author="note.user" :i="$i"/>
-					<MkCwButton v-model="showContent" :note="note"/>
+					<Mfm v-if="note.cw != ''" style="margin-right: 8px;" :text="note.cw" :author="note.user" :i="$i" @click.stop/>
+					<MkCwButton v-model="showContent" :note="note" @click.stop/>
 				</p>
 				<div v-show="note.cw == null || showContent">
-					<MkSubNoteContent :class="$style.text" :note="note"/>
+					<MkSubNoteContent :class="$style.text" :note="note" @click.stop/>
 				</div>
 			</div>
 		</div>
@@ -123,7 +123,6 @@ if (props.detail) {
 }
 
 .cw {
-	cursor: default;
 	display: block;
 	margin: 0;
 	padding: 0;
@@ -133,6 +132,7 @@ if (props.detail) {
 .text {
 	margin: 0;
 	padding: 0;
+	cursor: text;
 }
 
 .reply, .more {

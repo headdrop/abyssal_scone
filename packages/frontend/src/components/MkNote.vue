@@ -4,14 +4,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<MkA
+<div
 	v-if="!muted"
 	v-show="!isDeleted"
 	ref="el"
 	v-hotkey="keymap"
 	:class="[$style.root, { [$style.showActionsOnlyHover]: defaultStore.state.showNoteActionsOnlyHover }]"
 	:tabindex="!isDeleted ? '-1' : undefined"
-	:to="notePage(note)"
+	@click="nav($event, notePage(note))"
 >
 	<MkNoteSub v-if="appearNote.reply && !renoteCollapsed" :note="appearNote.reply" :class="$style.replyTo"/>
 	<div v-if="pinned" :class="$style.tip"><i class="ti ti-pin"></i> {{ i18n.ts.pinnedNote }}</div>
@@ -23,7 +23,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<i class="ti ti-repeat" style="margin-right: 4px;"></i>
 		<I18n :src="i18n.ts.renotedBy" tag="span" :class="$style.renoteText">
 			<template #user>
-				<MkA v-user-preview="note.userId" :class="$style.renoteUserName" :to="userPage(note.user)">
+				<MkA v-user-preview="note.userId" :class="$style.renoteUserName" :to="userPage(note.user)" @click.stop>
 					<MkUserName :user="note.user"/>
 				</MkA>
 			</template>
@@ -50,15 +50,15 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<div v-if="appearNote.channel" :class="$style.colorBar" :style="{ background: appearNote.channel.color }"></div>
 		<MkAvatar :class="$style.avatar" :user="appearNote.user" link preview/>
 		<div :class="$style.main">
-			<MkNoteHeader :note="appearNote" :mini="true"/>
+			<MkNoteHeader :note="appearNote" :mini="true" @click.stop/>
 			<MkInstanceTicker v-if="showTicker" :instance="appearNote.user.instance"/>
 			<div style="container-type: inline-size;">
 				<p v-if="appearNote.cw != null" :class="$style.cw">
-					<Mfm v-if="appearNote.cw != ''" style="margin-right: 8px;" :text="appearNote.cw" :author="appearNote.user" :i="$i"/>
-					<MkCwButton v-model="showContent" :note="appearNote"/>
+					<Mfm v-if="appearNote.cw != ''" style="margin-right: 8px;" :text="appearNote.cw" :author="appearNote.user" :i="$i" @click.stop/>
+					<MkCwButton v-model="showContent" :note="appearNote" @click.stop/>
 				</p>
 				<div v-show="appearNote.cw == null || showContent" :class="[{ [$style.contentCollapsed]: collapsed }]">
-					<div :class="$style.text">
+					<div :class="$style.text" @click.stop>
 						<span v-if="appearNote.isHidden" style="opacity: 0.5">({{ i18n.ts.private }})</span>
 						<MkA v-if="appearNote.replyId" :class="$style.replyIcon" :to="`/notes/${appearNote.replyId}`"><i class="ti ti-arrow-back-up"></i></MkA>
 						<Mfm v-if="appearNote.text" :text="appearNote.text" :author="appearNote.user" :i="$i" :emojiUrls="appearNote.emojis"/>
@@ -70,20 +70,20 @@ SPDX-License-Identifier: AGPL-3.0-only
 							</div>
 						</div>
 					</div>
-					<div v-if="appearNote.files.length > 0">
+					<div v-if="appearNote.files.length > 0" @click.stop>
 						<MkMediaList :mediaList="appearNote.files"/>
 					</div>
-					<MkPoll v-if="appearNote.poll" :note="appearNote" :class="$style.poll"/>
-					<MkUrlPreview v-for="url in urls" :key="url" :url="url" :compact="true" :detail="false" :class="$style.urlPreview"/>
+					<MkPoll v-if="appearNote.poll" :note="appearNote" :class="$style.poll" @click.stop/>
+					<MkUrlPreview v-for="url in urls" :key="url" :url="url" :compact="true" :detail="false" :class="$style.urlPreview" @click.stop/>
 					<div v-if="appearNote.renote" :class="$style.quote"><MkNoteSimple :note="appearNote.renote" :class="$style.quoteNote"/></div>
-					<button v-if="isLong && collapsed" :class="$style.collapsed" class="_button" @click="collapsed = false">
+					<button v-if="isLong && collapsed" :class="$style.collapsed" class="_button" @click.stop="collapsed = false">
 						<span :class="$style.collapsedLabel">{{ i18n.ts.showMore }}</span>
 					</button>
-					<button v-else-if="isLong && !collapsed" :class="$style.showLess" class="_button" @click="collapsed = true">
+					<button v-else-if="isLong && !collapsed" :class="$style.showLess" class="_button" @click.stop="collapsed = true">
 						<span :class="$style.showLessLabel">{{ i18n.ts.showLess }}</span>
 					</button>
 				</div>
-				<MkA v-if="appearNote.channel && !inChannel" :class="$style.channel" :to="`/channels/${appearNote.channel.id}`"><i class="ti ti-device-tv"></i> {{ appearNote.channel.name }}</MkA>
+				<MkA v-if="appearNote.channel && !inChannel" :class="$style.channel" :to="`/channels/${appearNote.channel.id}`" @click.stop><i class="ti ti-device-tv"></i> {{ appearNote.channel.name }}</MkA>
 			</div>
 			<MkReactionsViewer :note="appearNote" :maxNumber="16">
 				<template #more>
@@ -124,7 +124,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			</footer>
 		</div>
 	</article>
-</MkA>
+</div>
 <div v-else :class="$style.muted" @click="muted = false">
 	<I18n :src="i18n.ts.userSaysSomething" tag="small">
 		<template #name>
@@ -488,6 +488,22 @@ function readPromo() {
 	});
 	isDeleted.value = true;
 }
+
+import { useRouter } from '@/router.js';
+
+const router = useRouter();
+
+function openWindow(to) {
+	os.pageWindow(to);
+}
+
+function nav(ev: MouseEvent, to) {
+	if (ev.shiftKey) {
+		return openWindow(to);
+	}
+
+	router.push(to, ev.ctrlKey ? 'forcePage' : null);
+}
 </script>
 
 <style lang="scss" module>
@@ -510,6 +526,7 @@ function readPromo() {
 	&:hover {
 		outline: none;
 		text-decoration: none;
+		cursor: pointer;
 
 		&:after {
 			content: "";
@@ -756,6 +773,7 @@ function readPromo() {
 
 .text {
 	overflow-wrap: break-word;
+	cursor: text;
 }
 
 .replyIcon {
