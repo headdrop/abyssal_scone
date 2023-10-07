@@ -137,8 +137,10 @@ export type NoteUpdatedEvent = {
 	id: Note['id'];
 	type: 'updated';
 	body: {
-		updatedAt: string;
-		visibility: string;
+		cw?: string | null;
+		text?: string;
+		visibility?: string;
+		updatedAt: Date;
 	};
 } | {
 	id: Note['id'];

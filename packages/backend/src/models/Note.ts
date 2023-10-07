@@ -245,7 +245,7 @@ export class MiNote {
 		nullable: true,
 		comment: 'The updated date of the Note.',
 	})
-	public updatedAt: Date;
+	public updatedAt: Date | null;
 
 	constructor(data: Partial<MiNote>) {
 		if (data == null) return;

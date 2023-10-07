@@ -78,9 +78,19 @@ export function useNoteCapture(props: {
 			}
 
 			case 'updated': {
-				note.value.visibility = body.visibility;
-				if ((defaultStore.reactiveState.tl.value.src === 'local' || defaultStore.reactiveState.tl.value.src === 'global') && note.value.visibility !== 'public') {
-					props.isDeletedRef.value = true;
+				note.value.updatedAt = body.updatedAt;
+
+				if (body.text !== undefined) {
+					note.value.cw = body.cw;
+					note.value.text = body.text;
+				}
+
+				if (body.visibility !== undefined) {
+					note.value.visibility = body.visibility;
+
+					if ((defaultStore.reactiveState.tl.value.src === 'local' || defaultStore.reactiveState.tl.value.src === 'global') && note.value.visibility !== 'public') {
+						props.isDeletedRef.value = true;
+					}
 				}
 				break;
 			}

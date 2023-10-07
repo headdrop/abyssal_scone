@@ -19,7 +19,10 @@ import { MetaService } from '@/core/MetaService.js';
 import { SearchService } from '@/core/SearchService.js';
 
 type Option = {
-	visibility: string;
+	cw?: string | null;
+	text?: string;
+	visibility?: string;
+	updatedAt: Date;
 };
 
 @Injectable()
@@ -53,37 +56,34 @@ export class NoteUpdateService {
 
 	@bindThis
 	async update(user: { id: MiUser['id']; uri: MiUser['uri']; host: MiUser['host']; isBot: MiUser['isBot']; }, note: MiNote, data: Option) {
-		const updatedAt = new Date();
 		const cascadingNotes = await this.findCascadingNotes(note);
 
-		this.globalEventService.publishNoteStream(note.id, 'updated', {
-			updatedAt: updatedAt,
-			visibility: data.visibility,
-		});
+		this.globalEventService.publishNoteStream(note.id, 'updated', data);
 
-		for (const cascadingNote of cascadingNotes) {
-			if (cascadingNote.visibility === 'public' && data.visibility !== 'public') {
-				this.globalEventService.publishNoteStream(cascadingNote.id, 'updated', {
-					updatedAt: updatedAt,
-					visibility: data.visibility,
-				});
+		if (data.visibility !== undefined) {
+			for (const cascadingNote of cascadingNotes) {
+				if (cascadingNote.visibility === 'public' && data.visibility !== 'public') {
+					this.globalEventService.publishNoteStream(cascadingNote.id, 'updated', {
+						cw: undefined,
+						text: undefined,
+						visibility: data.visibility,
+						updatedAt: data.updatedAt,
+					});
 
-				await this.notesRepository.update({
-					id: cascadingNote.id,
-				}, {
-					updatedAt: updatedAt,
-					visibility: data.visibility as any,
-				});
+					await this.notesRepository.update({
+						id: cascadingNote.id,
+					}, {
+						visibility: data.visibility as any,
+						updatedAt: data.updatedAt,
+					});
+				}
 			}
 		}
 
 		await this.notesRepository.update({
 			id: note.id,
 			userId: user.id,
-		}, {
-			updatedAt: updatedAt,
-			visibility: data.visibility as any,
-		});
+		}, data as any);
 	}
 
 	@bindThis

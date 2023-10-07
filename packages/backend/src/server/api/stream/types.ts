@@ -131,8 +131,10 @@ export interface NoteStreamTypes {
 		deletedAt: Date;
 	};
 	updated: {
+		cw?: string | null;
+		text?: string;
+		visibility?: string;
 		updatedAt: Date;
-		visibility: string;
 	};
 	reacted: {
 		reaction: string;

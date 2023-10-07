@@ -1128,6 +1128,7 @@ export interface Locale {
     "authentication": string;
     "authenticationRequiredToContinue": string;
     "dateAndTime": string;
+    "edited": string;
     "_announcement": {
         "forExistingUsers": string;
         "forExistingUsersDescription": string;
@@ -1541,6 +1542,7 @@ export interface Locale {
             "gtlAvailable": string;
             "ltlAvailable": string;
             "canPublicNote": string;
+            "canEditNote": string;
             "canInvite": string;
             "inviteLimit": string;
             "inviteLimitCycle": string;
