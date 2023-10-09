@@ -1,6 +1,8 @@
-import { Injectable, Inject } from '@nestjs/common';
-import type { MiUser } from '@/models/User.js';
-import type { MiNote } from '@/models/Note.js';
+import { setImmediate } from 'node:timers/promises';
+import { In } from 'typeorm';
+import { Injectable, Inject, OnApplicationShutdown } from '@nestjs/common';
+import type { MiUser, MiLocalUser, MiRemoteUser } from '@/models/User.js';
+import type { IMentionedRemoteUsers, MiNote } from '@/models/Note.js';
 import type { InstancesRepository, NotesRepository, UsersRepository } from '@/models/_.js';
 import { RelayService } from '@/core/RelayService.js';
 import { FederatedInstanceService } from '@/core/FederatedInstanceService.js';
@@ -9,24 +11,28 @@ import type { Config } from '@/config.js';
 import NotesChart from '@/core/chart/charts/notes.js';
 import PerUserNotesChart from '@/core/chart/charts/per-user-notes.js';
 import InstanceChart from '@/core/chart/charts/instance.js';
+import ActiveUsersChart from '@/core/chart/charts/active-users.js';
 import { GlobalEventService } from '@/core/GlobalEventService.js';
 import { ApRendererService } from '@/core/activitypub/ApRendererService.js';
 import { ApDeliverManagerService } from '@/core/activitypub/ApDeliverManagerService.js';
 import { UserEntityService } from '@/core/entities/UserEntityService.js';
 import { NoteEntityService } from '@/core/entities/NoteEntityService.js';
 import { bindThis } from '@/decorators.js';
+import { DB_MAX_NOTE_TEXT_LENGTH } from '@/const.js';
 import { MetaService } from '@/core/MetaService.js';
 import { SearchService } from '@/core/SearchService.js';
 
 type Option = {
 	cw?: string | null;
-	text?: string;
+	text?: string | null;
 	visibility?: string;
 	updatedAt: Date;
 };
 
 @Injectable()
-export class NoteUpdateService {
+export class NoteUpdateService implements OnApplicationShutdown {
+	#shutdownController = new AbortController();
+
 	constructor(
 		@Inject(DI.config)
 		private config: Config,
@@ -52,38 +58,149 @@ export class NoteUpdateService {
 		private notesChart: NotesChart,
 		private perUserNotesChart: PerUserNotesChart,
 		private instanceChart: InstanceChart,
+		private activeUsersChart: ActiveUsersChart,
 	) {}
 
 	@bindThis
-	async update(user: { id: MiUser['id']; uri: MiUser['uri']; host: MiUser['host']; isBot: MiUser['isBot']; }, note: MiNote, data: Option) {
-		const cascadingNotes = await this.findCascadingNotes(note);
-
+	public async update(user: { id: MiUser['id']; uri: MiUser['uri']; host: MiUser['host']; username: MiUser['username']; isBot: MiUser['isBot']; createdAt: MiUser['createdAt']; }, note: MiNote, data: Option, silent = false) {
 		this.globalEventService.publishNoteStream(note.id, 'updated', data);
 
 		if (data.visibility !== undefined) {
-			for (const cascadingNote of cascadingNotes) {
-				if (cascadingNote.visibility === 'public' && data.visibility !== 'public') {
-					this.globalEventService.publishNoteStream(cascadingNote.id, 'updated', {
-						cw: undefined,
-						text: undefined,
-						visibility: data.visibility,
-						updatedAt: data.updatedAt,
-					});
-
-					await this.notesRepository.update({
-						id: cascadingNote.id,
-					}, {
-						visibility: data.visibility as any,
-						updatedAt: data.updatedAt,
-					});
-				}
-			}
+			await this.updateVisibilityCascadingNotes(note, data);
 		}
 
-		await this.notesRepository.update({
-			id: note.id,
-			userId: user.id,
-		}, data as any);
+		if (data.text) {
+			if (data.text.length > DB_MAX_NOTE_TEXT_LENGTH) {
+				data.text = data.text.slice(0, DB_MAX_NOTE_TEXT_LENGTH);
+			}
+			data.text = data.text.trim();
+		}
+
+		const updatedNote = await this.updateNote(note, data);
+
+		setImmediate('post updating', { signal: this.#shutdownController.signal }).then(
+			() => this.postNoteUpdated(updatedNote, user, silent),
+			() => { /* aborted, ignore this */ },
+		);
+	}
+
+	@bindThis
+	private async updateNote(note: MiNote, data: Option): Promise<MiNote> {
+		const update = {
+			cw: data.cw ?? null,
+			text: data.text ?? null,
+			visibility: data.visibility,
+			updatedAt: data.updatedAt,
+		};
+
+		try {
+			await this.notesRepository.update({ id: note.id }, update as any);
+
+			return await this.notesRepository.findOneByOrFail({ id: note.id });
+		} catch (e) {
+			console.error(e);
+
+			throw e;
+		}
+	}
+
+	@bindThis
+	private async postNoteUpdated(note: MiNote, user: {
+		id: MiUser['id'];
+		uri: MiUser['uri'];
+		host: MiUser['host'];
+		username: MiUser['username'];
+		isBot: MiUser['isBot'];
+		createdAt: MiUser['createdAt'];
+	}, silent: boolean) {
+		if (!silent) {
+			if (this.userEntityService.isLocalUser(user)) this.activeUsersChart.write(user);
+
+			this.globalEventService.publishNoteStream(note.id, 'updated', { cw: note.cw, text: note.text!, updatedAt: note.updatedAt! });
+
+			//#region AP deliver
+			if (this.userEntityService.isLocalUser(user)) {
+				(async () => {
+					const noteActivity = await this.renderNoteActivity(user, note);
+
+					// Skip deliver if local only notes
+					if (noteActivity === null) {
+						return;
+					}
+
+					this.deliverToConcerned(user, note, noteActivity);
+				})();
+			}
+			//#endregion
+		}
+
+		this.reindex(note);
+	}
+
+	@bindThis
+	private async deliverToConcerned(user: { id: MiLocalUser['id']; host: null; }, note: MiNote, content: any) {
+		this.apDeliverManagerService.deliverToFollowers(user, content);
+		this.relayService.deliverToRelays(user, content);
+		const remoteUsers = await this.getMentionedRemoteUsers(note);
+		for (const remoteUser of remoteUsers) {
+			this.apDeliverManagerService.deliverToUser(user, content, remoteUser);
+		}
+	}
+
+	@bindThis
+	private async renderNoteActivity(user: { id: MiLocalUser['id']; }, note: MiNote) {
+		if (note.localOnly) return null;
+
+		const content = this.apRendererService.renderUpdate(await this.apRendererService.renderNote(note, false), user);
+
+		return this.apRendererService.addContext(content);
+	}
+
+	@bindThis
+	private async getMentionedRemoteUsers(note: MiNote) {
+		const where = [] as any[];
+
+		// mention / reply / dm
+		const uris = (JSON.parse(note.mentionedRemoteUsers) as IMentionedRemoteUsers).map(x => x.uri);
+		if (uris.length > 0) {
+			where.push(
+				{ uri: In(uris) },
+			);
+		}
+
+		// renote / quote
+		if (note.renoteUserId) {
+			where.push({
+				id: note.renoteUserId,
+			});
+		}
+
+		if (where.length === 0) return [];
+
+		return await this.usersRepository.find({
+			where,
+		}) as MiRemoteUser[];
+	}
+
+	@bindThis
+	private async updateVisibilityCascadingNotes(note: MiNote, data: Option): Promise<void> {
+		const cascadingNotes = await this.findCascadingNotes(note);
+
+		for (const cascadingNote of cascadingNotes) {
+			if (cascadingNote.visibility === 'public' && data.visibility !== 'public') {
+				this.globalEventService.publishNoteStream(cascadingNote.id, 'updated', {
+					visibility: data.visibility,
+					updatedAt: data.updatedAt,
+				});
+
+				await this.notesRepository.update({
+					id: cascadingNote.id,
+				}, {
+					visibility: data.visibility as any,
+					updatedAt: data.updatedAt,
+				});
+			}
+		}
 	}
 
 	@bindThis
@@ -104,5 +221,23 @@ export class NoteUpdateService {
 		const cascadingNotes: MiNote[] = await recursive(note.id);
 
 		return cascadingNotes;
+	}
+
+	@bindThis
+	private reindex(note: MiNote) {
+		if (note.text == null && note.cw == null) return;
+
+		this.searchService.unindexNote(note);
+		this.searchService.indexNote(note);
+	}
+
+	@bindThis
+	public dispose(): void {
+		this.#shutdownController.abort();
+	}
+
+	@bindThis
+	public onApplicationShutdown(signal?: string | undefined): void {
+		this.dispose();
 	}
 }

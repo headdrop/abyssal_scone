@@ -132,7 +132,7 @@ export interface NoteStreamTypes {
 	};
 	updated: {
 		cw?: string | null;
-		text?: string;
+		text?: string | null;
 		visibility?: string;
 		updatedAt: Date;
 	};
