@@ -87,9 +87,9 @@ export class NoteUpdateService implements OnApplicationShutdown {
 	@bindThis
 	private async updateNote(note: MiNote, data: Option): Promise<MiNote> {
 		const update = {
-			cw: data.cw ?? null,
-			text: data.text ?? null,
-			visibility: data.visibility,
+			cw: data.cw ?? undefined,
+			text: data.text ?? undefined,
+			visibility: data.visibility ?? undefined,
 			updatedAt: data.updatedAt,
 		};
 
@@ -115,8 +115,6 @@ export class NoteUpdateService implements OnApplicationShutdown {
 	}, silent: boolean) {
 		if (!silent) {
 			if (this.userEntityService.isLocalUser(user)) this.activeUsersChart.write(user);
-
-			this.globalEventService.publishNoteStream(note.id, 'updated', { cw: note.cw, text: note.text!, updatedAt: note.updatedAt! });
 
 			//#region AP deliver
 			if (this.userEntityService.isLocalUser(user)) {
