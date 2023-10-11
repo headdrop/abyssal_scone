@@ -4,7 +4,6 @@
  */
 
 import { Module } from '@nestjs/common';
-import { ServerStatsService } from '../daemons/ServerStatsService.js';
 import { AccountMoveService } from './AccountMoveService.js';
 import { AccountUpdateService } from './AccountUpdateService.js';
 import { AiService } from './AiService.js';
@@ -255,8 +254,6 @@ const $ApMentionService: Provider = { provide: 'ApMentionService', useExisting: 
 const $ApNoteService: Provider = { provide: 'ApNoteService', useExisting: ApNoteService };
 const $ApPersonService: Provider = { provide: 'ApPersonService', useExisting: ApPersonService };
 const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting: ApQuestionService };
-
-const $ServerStatsService: Provider = { provide: 'ServerStatsService', useExisting: ServerStatsService };
 //#endregion
 
 @Module({
@@ -386,7 +383,6 @@ const $ServerStatsService: Provider = { provide: 'ServerStatsService', useExisti
 		ApPersonService,
 		ApQuestionService,
 		QueueService,
-		ServerStatsService,
 
 		//#region 文字列ベースでのinjection用(循環参照対応のため)
 		$LoggerService,
@@ -510,7 +506,6 @@ const $ServerStatsService: Provider = { provide: 'ServerStatsService', useExisti
 		$ApNoteService,
 		$ApPersonService,
 		$ApQuestionService,
-		$ServerStatsService,
 		//#endregion
 	],
 	exports: [
@@ -636,7 +631,6 @@ const $ServerStatsService: Provider = { provide: 'ServerStatsService', useExisti
 		ApPersonService,
 		ApQuestionService,
 		QueueService,
-		ServerStatsService,
 
 		//#region 文字列ベースでのinjection用(循環参照対応のため)
 		$LoggerService,
@@ -759,7 +753,6 @@ const $ServerStatsService: Provider = { provide: 'ServerStatsService', useExisti
 		$ApNoteService,
 		$ApPersonService,
 		$ApQuestionService,
-		$ServerStatsService,
 		//#endregion
 	],
 })
