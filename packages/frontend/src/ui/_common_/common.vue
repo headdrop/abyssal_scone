@@ -65,11 +65,10 @@ const dev = _DEV_;
 
 let notifications = $ref<Misskey.entities.Notification[]>([]);
 
-function onNotification(notification: Misskey.entities.Notification, isClient: boolean = false) {
-	if ($i.mutingNotificationTypes.includes(notification.type)) return;
-
+function onNotification(notification: Misskey.entities.Notification, isClient = false) {
 	if (document.visibilityState === 'visible') {
-		if (!isClient) {
+		if (!isClient && notification.type !== 'test') {
+			// サーバーサイドのテスト通知の際は自動で既読をつけない（テストできないので）
 			useStream().send('readNotification');
 		}
 

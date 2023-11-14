@@ -188,7 +188,7 @@ export class ClientServerService {
 		// Authenticate
 		fastify.addHook('onRequest', async (request, reply) => {
 			// %71ueueとかでリクエストされたら困るため
-			const url = decodeURI(request.url);
+			const url = decodeURI(request.routeOptions.url);
 			if (url === bullBoardPath || url.startsWith(bullBoardPath + '/')) {
 				const token = request.cookies.token;
 				if (token == null) {
@@ -253,8 +253,9 @@ export class ClientServerService {
 				decorateReply: false,
 			});
 		} else {
+			const port = (process.env.VITE_PORT ?? '5173');
 			fastify.register(fastifyProxy, {
-				upstream: 'http://localhost:5173', // TODO: port configuration
+				upstream: 'http://localhost:' + port,
 				prefix: '/vite',
 				rewritePrefix: '/vite',
 			});
@@ -728,8 +729,8 @@ export class ClientServerService {
 
 		fastify.setErrorHandler(async (error, request, reply) => {
 			const errId = randomUUID();
-			this.clientLoggerService.logger.error(`Internal error occurred in ${request.routerPath}: ${error.message}`, {
-				path: request.routerPath,
+			this.clientLoggerService.logger.error(`Internal error occurred in ${request.routeOptions.url}: ${error.message}`, {
+				path: request.routeOptions.url,
 				params: request.params,
 				query: request.query,
 				code: error.name,

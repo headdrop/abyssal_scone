@@ -6,7 +6,7 @@
 /*
  * Notification manager for SW
  */
-import type { BadgeNames, PushNotificationDataMap } from '@/types';
+import type { BadgeNames, PushNotificationDataMap } from '@/types.js';
 import { char2fileName } from '@/scripts/twemoji-base.js';
 import { cli } from '@/scripts/operations.js';
 import { getAccountFromId } from '@/scripts/get-account-from-id.js';
@@ -225,6 +225,13 @@ async function composeNotification(data: PushNotificationDataMap[keyof PushNotif
 						data,
 					}];
 
+				case 'test':
+					return [t('_notification.testNotification'), {
+						body: t('_notification.notificationWillBeDisplayedLikeThis'),
+						badge: iconUrl('bell'),
+						data,
+					}];
+		
 				default:
 					return null;
 			}

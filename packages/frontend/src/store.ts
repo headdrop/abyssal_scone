@@ -5,7 +5,7 @@
 
 import { markRaw, ref } from 'vue';
 import * as Misskey from 'misskey-js';
-import { miLocalStorage } from './local-storage';
+import { miLocalStorage } from './local-storage.js';
 import { Storage } from '@/pizzax.js';
 
 interface PostFormAction {
@@ -49,9 +49,14 @@ export const defaultStore = markRaw(new Storage('base', {
 		where: 'account',
 		default: 0,
 	},
-	timelineTutorial: {
+	timelineTutorials: {
 		where: 'account',
-		default: 0,
+		default: {
+			home: false,
+			local: false,
+			social: false,
+			global: false,
+		},
 	},
 	keepCw: {
 		where: 'account',
@@ -101,17 +106,9 @@ export const defaultStore = markRaw(new Storage('base', {
 		where: 'account',
 		default: 'nonSensitiveOnly' as 'likeOnly' | 'likeOnlyForRemote' | 'nonSensitiveOnly' | 'nonSensitiveOnlyForLocalLikeOnlyForRemote' | null,
 	},
-	mutedWords: {
-		where: 'account',
-		default: [],
-	},
 	mutedAds: {
 		where: 'account',
 		default: [] as string[],
-	},
-	showTimelineReplies: {
-		where: 'account',
-		default: false,
 	},
 
 	menu: {
@@ -301,6 +298,10 @@ export const defaultStore = markRaw(new Storage('base', {
 		where: 'device',
 		default: false,
 	},
+	showAvatarDecorations: {
+		where: 'device',
+		default: true,
+	},
 	postFormWithHashtags: {
 		where: 'device',
 		default: false,
@@ -364,6 +365,47 @@ export const defaultStore = markRaw(new Storage('base', {
 	keepScreenOn: {
 		where: 'device',
 		default: false,
+	},
+	tlWithReplies: {
+		where: 'device',
+		default: false,
+	},
+	defaultWithReplies: {
+		where: 'account',
+		default: false,
+	},
+	disableStreamingTimeline: {
+		where: 'device',
+		default: false,
+	},
+	useGroupedNotifications: {
+		where: 'device',
+		default: true,
+	},
+
+	sound_masterVolume: {
+		where: 'device',
+		default: 0.3,
+	},
+	sound_note: {
+		where: 'device',
+		default: { type: 'syuilo/n-aec', volume: 1 },
+	},
+	sound_noteMy: {
+		where: 'device',
+		default: { type: 'syuilo/n-cea-4va', volume: 1 },
+	},
+	sound_notification: {
+		where: 'device',
+		default: { type: 'syuilo/n-ea', volume: 1 },
+	},
+	sound_antenna: {
+		where: 'device',
+		default: { type: 'syuilo/triple', volume: 1 },
+	},
+	sound_channel: {
+		where: 'device',
+		default: { type: 'syuilo/square-pico', volume: 1 },
 	},
 }));
 

@@ -55,6 +55,14 @@ export const moderationLogTypes = [
 	'unsuspendRemoteInstance',
 	'markSensitiveDriveFile',
 	'unmarkSensitiveDriveFile',
+	'resolveAbuseReport',
+	'createInvitation',
+	'createAd',
+	'updateAd',
+	'deleteAd',
+	'createAvatarDecoration',
+	'updateAvatarDecoration',
+	'deleteAvatarDecoration',
 ] as const;
 
 export type ModerationLogPayloads = {
@@ -166,6 +174,9 @@ export type ModerationLogPayloads = {
 	deleteUserAnnouncement: {
 		announcementId: string;
 		announcement: any;
+		userId: string;
+		userUsername: string;
+		userHost: string | null;
 	};
 	resetPassword: {
 		userId: string;
@@ -192,4 +203,55 @@ export type ModerationLogPayloads = {
 		fileUserUsername: string | null;
 		fileUserHost: string | null;
 	};
+	resolveAbuseReport: {
+		reportId: string;
+		report: any;
+		forwarded: boolean;
+	};
+	createInvitation: {
+		invitations: any[];
+	};
+	createAd: {
+		adId: string;
+		ad: any;
+	};
+	updateAd: {
+		adId: string;
+		before: any;
+		after: any;
+	};
+	deleteAd: {
+		adId: string;
+		ad: any;
+	};
+	createAvatarDecoration: {
+		avatarDecorationId: string;
+		avatarDecoration: any;
+	};
+	updateAvatarDecoration: {
+		avatarDecorationId: string;
+		before: any;
+		after: any;
+	};
+	deleteAvatarDecoration: {
+		avatarDecorationId: string;
+		avatarDecoration: any;
+	};
 };
+
+export type Serialized<T> = {
+	[K in keyof T]:
+		T[K] extends Date
+			? string
+			: T[K] extends (Date | null)
+				? (string | null)
+				: T[K] extends Record<string, any>
+					? Serialized<T[K]>
+					: T[K];
+};
+
+export type FilterUnionByProperty<
+  Union,
+  Property extends string | number | symbol,
+  Condition
+> = Union extends Record<Property, Condition> ? Union : never;

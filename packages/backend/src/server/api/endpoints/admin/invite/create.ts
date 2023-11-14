@@ -10,6 +10,7 @@ import { InviteCodeEntityService } from '@/core/entities/InviteCodeEntityService
 import { IdService } from '@/core/IdService.js';
 import { DI } from '@/di-symbols.js';
 import { generateInviteCode } from '@/misc/generate-invite-code.js';
+import { ModerationLogService } from '@/core/ModerationLogService.js';
 import { ApiError } from '../../../error.js';
 
 export const meta = {
@@ -60,6 +61,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 
 		private inviteCodeEntityService: InviteCodeEntityService,
 		private idService: IdService,
+		private moderationLogService: ModerationLogService,
 	) {
 		super(meta, paramDef, async (ps, me) => {
 			if (ps.expiresAt && isNaN(Date.parse(ps.expiresAt))) {
@@ -70,14 +72,18 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 
 			for (let i = 0; i < ps.count; i++) {
 				ticketsPromises.push(this.registrationTicketsRepository.insert({
-					id: this.idService.genId(),
-					createdAt: new Date(),
+					id: this.idService.gen(),
 					expiresAt: ps.expiresAt ? new Date(ps.expiresAt) : null,
 					code: generateInviteCode(),
 				}).then(x => this.registrationTicketsRepository.findOneByOrFail(x.identifiers[0])));
 			}
 
 			const tickets = await Promise.all(ticketsPromises);
+
+			this.moderationLogService.log(me, 'createInvitation', {
+				invitations: tickets,
+			});
+
 			return await this.inviteCodeEntityService.packMany(tickets, me);
 		});
 	}

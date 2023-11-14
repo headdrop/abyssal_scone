@@ -9,7 +9,7 @@ import type { WebhooksRepository } from '@/models/_.js';
 import type { MiWebhook } from '@/models/Webhook.js';
 import { DI } from '@/di-symbols.js';
 import { bindThis } from '@/decorators.js';
-import { StreamMessages } from '@/server/api/stream/types.js';
+import type { GlobalEvents } from '@/core/GlobalEventService.js';
 import type { OnApplicationShutdown } from '@nestjs/common';
 
 @Injectable()
@@ -45,13 +45,12 @@ export class WebhookService implements OnApplicationShutdown {
 		const obj = JSON.parse(data);
 
 		if (obj.channel === 'internal') {
-			const { type, body } = obj.message as StreamMessages['internal']['payload'];
+			const { type, body } = obj.message as GlobalEvents['internal']['payload'];
 			switch (type) {
 				case 'webhookCreated':
 					if (body.active) {
 						this.webhooks.push({
 							...body,
-							createdAt: new Date(body.createdAt),
 							latestSentAt: body.latestSentAt ? new Date(body.latestSentAt) : null,
 						});
 					}
@@ -62,13 +61,11 @@ export class WebhookService implements OnApplicationShutdown {
 						if (i > -1) {
 							this.webhooks[i] = {
 								...body,
-								createdAt: new Date(body.createdAt),
 								latestSentAt: body.latestSentAt ? new Date(body.latestSentAt) : null,
 							};
 						} else {
 							this.webhooks.push({
 								...body,
-								createdAt: new Date(body.createdAt),
 								latestSentAt: body.latestSentAt ? new Date(body.latestSentAt) : null,
 							});
 						}

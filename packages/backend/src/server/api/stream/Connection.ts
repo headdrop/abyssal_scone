@@ -11,11 +11,12 @@ import type { NoteReadService } from '@/core/NoteReadService.js';
 import type { NotificationService } from '@/core/NotificationService.js';
 import { bindThis } from '@/decorators.js';
 import { CacheService } from '@/core/CacheService.js';
-import { MiUserProfile } from '@/models/_.js';
+import { MiFollowing, MiUserProfile } from '@/models/_.js';
+import type { StreamEventEmitter, GlobalEvents } from '@/core/GlobalEventService.js';
+import { ChannelFollowingService } from '@/core/ChannelFollowingService.js';
 import type { ChannelsService } from './ChannelsService.js';
 import type { EventEmitter } from 'events';
 import type Channel from './channel.js';
-import type { StreamEventEmitter, StreamMessages } from './types.js';
 
 /**
  * Main stream connection
@@ -30,7 +31,7 @@ export default class Connection {
 	private subscribingNotes: any = {};
 	private cachedNotes: Packed<'Note'>[] = [];
 	public userProfile: MiUserProfile | null = null;
-	public following: Set<string> = new Set();
+	public following: Record<string, Pick<MiFollowing, 'withReplies'> | undefined> = {};
 	public followingChannels: Set<string> = new Set();
 	public userIdsWhoMeMuting: Set<string> = new Set();
 	public userIdsWhoBlockingMe: Set<string> = new Set();
@@ -42,6 +43,7 @@ export default class Connection {
 		private noteReadService: NoteReadService,
 		private notificationService: NotificationService,
 		private cacheService: CacheService,
+		private channelFollowingService: ChannelFollowingService,
 
 		user: MiUser | null | undefined,
 		token: MiAccessToken | null | undefined,
@@ -56,7 +58,7 @@ export default class Connection {
 		const [userProfile, following, followingChannels, userIdsWhoMeMuting, userIdsWhoBlockingMe, userIdsWhoMeMutingRenotes] = await Promise.all([
 			this.cacheService.userProfileCache.fetch(this.user.id),
 			this.cacheService.userFollowingsCache.fetch(this.user.id),
-			this.cacheService.userFollowingChannelsCache.fetch(this.user.id),
+			this.channelFollowingService.userFollowingChannelsCache.fetch(this.user.id),
 			this.cacheService.userMutingsCache.fetch(this.user.id),
 			this.cacheService.userBlockedCache.fetch(this.user.id),
 			this.cacheService.renoteMutingsCache.fetch(this.user.id),
@@ -122,7 +124,7 @@ export default class Connection {
 	}
 
 	@bindThis
-	private onBroadcastMessage(data: StreamMessages['broadcast']['payload']) {
+	private onBroadcastMessage(data: GlobalEvents['broadcast']['payload']) {
 		this.sendMessageToWs(data.type, data.body);
 	}
 
@@ -196,7 +198,7 @@ export default class Connection {
 	}
 
 	@bindThis
-	private async onNoteStreamMessage(data: StreamMessages['note']['payload']) {
+	private async onNoteStreamMessage(data: GlobalEvents['note']['payload']) {
 		this.sendMessageToWs('noteUpdated', {
 			id: data.body.id,
 			type: data.type,

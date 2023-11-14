@@ -97,6 +97,11 @@ export const packedFederationInstanceSchema = {
 			type: 'string',
 			optional: false, nullable: true,
 		},
+		isSilenced: {
+			type: "boolean",
+			optional: false,
+			nullable: false,
+		},
 		infoUpdatedAt: {
 			type: 'string',
 			optional: false, nullable: true,
