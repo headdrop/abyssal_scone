@@ -11,7 +11,7 @@ import * as Redis from 'ioredis';
 import { DI } from '@/di-symbols.js';
 import { bindThis } from '@/decorators.js';
 import { MetaService } from '@/core/MetaService.js';
-import { StreamMessages } from '@/server/api/stream/types.js';
+import type { GlobalEvents } from '@/core/GlobalEventService.js';
 import type { OnApplicationShutdown } from '@nestjs/common';
 
 const ev = new Xev();
@@ -39,7 +39,7 @@ export class ServerStatsService implements OnApplicationShutdown {
 		const obj = JSON.parse(data);
 
 		if (obj.channel === 'internal') {
-			const { type, body } = obj.message as StreamMessages['internal']['payload'];
+			const { type, body } = obj.message as GlobalEvents['internal']['payload'];
 			switch (type) {
 				case 'metaUpdated': {
 					if (body.enableServerMachineStats === true) {

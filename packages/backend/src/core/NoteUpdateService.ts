@@ -62,7 +62,7 @@ export class NoteUpdateService implements OnApplicationShutdown {
 	) {}
 
 	@bindThis
-	public async update(user: { id: MiUser['id']; uri: MiUser['uri']; host: MiUser['host']; username: MiUser['username']; isBot: MiUser['isBot']; createdAt: MiUser['createdAt']; }, note: MiNote, data: Option, silent = false) {
+	public async update(user: { id: MiUser['id']; uri: MiUser['uri']; host: MiUser['host']; username: MiUser['username']; isBot: MiUser['isBot']; }, note: MiNote, data: Option, silent = false) {
 		this.globalEventService.publishNoteStream(note.id, 'updated', data);
 
 		if (data.visibility !== undefined) {
@@ -111,7 +111,6 @@ export class NoteUpdateService implements OnApplicationShutdown {
 		host: MiUser['host'];
 		username: MiUser['username'];
 		isBot: MiUser['isBot'];
-		createdAt: MiUser['createdAt'];
 	}, silent: boolean) {
 		if (!silent) {
 			if (this.userEntityService.isLocalUser(user)) this.activeUsersChart.write(user);
