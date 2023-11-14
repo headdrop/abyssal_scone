@@ -37,7 +37,6 @@ export const paramDef = {
 		notResponding: { type: 'boolean', nullable: true },
 		silenced: { type: 'boolean', nullable: true },
 		suspended: { type: 'boolean', nullable: true },
-		silenced: { type: "boolean", nullable: true },
 		federating: { type: 'boolean', nullable: true },
 		subscribing: { type: 'boolean', nullable: true },
 		publishing: { type: 'boolean', nullable: true },
@@ -109,23 +108,6 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 					query.andWhere('instance.isSuspended = TRUE');
 				} else {
 					query.andWhere('instance.isSuspended = FALSE');
-				}
-			}
-
-			if (typeof ps.silenced === "boolean") {
-				const meta = await this.metaService.fetch(true);
-
-				if (ps.silenced) {
-					if (meta.silencedHosts.length === 0) {
-						return [];
-					}
-					query.andWhere("instance.host IN (:...silences)", {
-						silences: meta.silencedHosts,
-					});
-				} else if (meta.silencedHosts.length > 0) {
-					query.andWhere("instance.host NOT IN (:...silences)", {
-						silences: meta.silencedHosts,
-					});
 				}
 			}
 

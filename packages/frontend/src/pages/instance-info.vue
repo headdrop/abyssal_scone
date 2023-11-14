@@ -34,10 +34,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<FormSection v-if="iAmModerator">
 				<template #label>Moderation</template>
 				<div class="_gaps_s">
-					<MkSwitch v-model="silenced" @update:modelValue="toggleSilence">{{ i18n.ts.silenceThisInstance }}</MkSwitch>
+					<MkSwitch v-model="silenced" :disabled="!meta || !instance" @update:modelValue="toggleSilence">{{ i18n.ts.silenceThisInstance }}</MkSwitch>
 					<MkSwitch v-model="suspended" :disabled="!instance" @update:modelValue="toggleSuspend">{{ i18n.ts.stopActivityDelivery }}</MkSwitch>
 					<MkSwitch v-model="isBlocked" :disabled="!meta || !instance" @update:modelValue="toggleBlock">{{ i18n.ts.blockThisInstance }}</MkSwitch>
-					<MkSwitch v-model="isSilenced" :disabled="!meta || !instance" @update:modelValue="toggleSilenced">{{ i18n.ts.silenceThisInstance }}</MkSwitch>
 					<MkButton @click="refreshMetadata"><i class="ti ti-refresh"></i> Refresh metadata</MkButton>
 				</div>
 			</FormSection>
@@ -150,7 +149,6 @@ let instance = $ref<Misskey.entities.Instance | null>(null);
 let silenced = $ref(false);
 let suspended = $ref(false);
 let isBlocked = $ref(false);
-let isSilenced = $ref(false);
 let faviconUrl = $ref<string | null>(null);
 
 const usersPagination = {
@@ -174,7 +172,6 @@ async function fetch(): Promise<void> {
 	silenced = instance.isSilenced;
 	suspended = instance.isSuspended;
 	isBlocked = instance.isBlocked;
-	isSilenced = instance.isSilenced;
 	faviconUrl = getProxiedImageUrlNullable(instance.faviconUrl, 'preview') ?? getProxiedImageUrlNullable(instance.iconUrl, 'preview');
 }
 
@@ -184,15 +181,6 @@ async function toggleBlock(): Promise<void> {
 	const { host } = instance;
 	await os.api('admin/update-meta', {
 		blockedHosts: isBlocked ? meta.blockedHosts.concat([host]) : meta.blockedHosts.filter(x => x !== host),
-	});
-}
-
-async function toggleSilenced(): Promise<void> {
-	if (!meta) throw new Error('No meta?');
-	if (!instance) throw new Error('No instance?');
-	const { host } = instance;
-	await os.api('admin/update-meta', {
-		silencedHosts: isSilenced ? meta.silencedHosts.concat([host]) : meta.silencedHosts.filter(x => x !== host),
 	});
 }
 

@@ -56,7 +56,6 @@ import { MetaService } from '@/core/MetaService.js';
 import { SearchService } from '@/core/SearchService.js';
 import { FeaturedService } from '@/core/FeaturedService.js';
 import { FunoutTimelineService } from '@/core/FunoutTimelineService.js';
-import { UtilityService } from '@/core/UtilityService.js';
 import { UserBlockingService } from '@/core/UserBlockingService.js';
 
 type NotificationType = 'reply' | 'renote' | 'quote' | 'mention';
@@ -215,7 +214,6 @@ export class NoteCreateService implements OnApplicationShutdown {
 		private perUserNotesChart: PerUserNotesChart,
 		private activeUsersChart: ActiveUsersChart,
 		private instanceChart: InstanceChart,
-		private utilityService: UtilityService,
 		private userBlockingService: UserBlockingService,
 	) { }
 
@@ -267,12 +265,6 @@ export class NoteCreateService implements OnApplicationShutdown {
 			} else if ((await this.roleService.getUserPolicies(user.id)).canPublicNote === false) {
 				data.visibility = 'home';
 			}
-		}
-
-		const inSilencedInstance = this.utilityService.isSilencedHost(meta.silencedHosts, user.host);
-
-		if (data.visibility === 'public' && inSilencedInstance && user.host !== null) {
-			data.visibility = 'home';
 		}
 
 		if (data.renote) {

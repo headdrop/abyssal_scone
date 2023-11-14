@@ -397,7 +397,6 @@ export type InstanceMetadata = LiteInstanceMetadata | DetailedInstanceMetadata;
 export type AdminInstanceMetadata = DetailedInstanceMetadata & {
 	// TODO: There are more fields.
 	blockedHosts: string[];
-	silencedHosts: string[];
 	app192IconUrl: string | null;
 	app512IconUrl: string | null;
 	manifestJsonOverride: string;
@@ -572,7 +571,6 @@ export type Instance = {
 	isNotResponding: boolean;
 	isSilenced: boolean;
 	isSuspended: boolean;
-	isSilenced: boolean;
 	isBlocked: boolean;
 	softwareName: string | null;
 	softwareVersion: string | null;
