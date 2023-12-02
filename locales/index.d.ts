@@ -876,6 +876,7 @@ export interface Locale {
     "ffVisibilityDescription": string;
     "continueThread": string;
     "deleteAccountConfirm": string;
+    "truncateAccountConfirm": string;
     "incorrectPassword": string;
     "voteConfirm": string;
     "hide": string;
@@ -921,6 +922,7 @@ export interface Locale {
     "isSystemAccount": string;
     "typeToConfirm": string;
     "deleteAccount": string;
+    "truncateAccount": string;
     "document": string;
     "numberOfPageCache": string;
     "numberOfPageCacheDescription": string;
@@ -1737,6 +1739,13 @@ export interface Locale {
         "mayTakeTime": string;
         "sendEmail": string;
         "requestAccountDelete": string;
+        "started": string;
+        "inProgress": string;
+    };
+    "_accountTruncate": {
+        "accountDelete": string;
+        "mayTakeTime": string;
+        "requestAccountTruncate": string;
         "started": string;
         "inProgress": string;
     };

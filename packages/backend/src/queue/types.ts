@@ -56,6 +56,7 @@ export type DbJobMap = {
 	importUserLists: DbUserImportJobData;
 	importCustomEmojis: DbUserImportJobData;
 	deleteAccount: DbUserDeleteJobData;
+	truncateAccount: DbUserTruncateJobData;
 }
 
 export type DbJobDataWithUser = {
@@ -75,6 +76,10 @@ export type DBExportAntennasData = {
 export type DbUserDeleteJobData = {
 	user: ThinUser;
 	soft?: boolean;
+};
+
+export type DbUserTruncateJobData = {
+	user: ThinUser;
 };
 
 export type DbUserImportJobData = {
