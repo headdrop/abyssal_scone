@@ -19,7 +19,6 @@ import { UserEntityService } from '@/core/entities/UserEntityService.js';
 import { NoteEntityService } from '@/core/entities/NoteEntityService.js';
 import { bindThis } from '@/decorators.js';
 import { DB_MAX_NOTE_TEXT_LENGTH } from '@/const.js';
-import { FunoutTimelineService } from '@/core/FunoutTimelineService.js';
 import { MetaService } from '@/core/MetaService.js';
 import { SearchService } from '@/core/SearchService.js';
 
@@ -50,7 +49,6 @@ export class NoteUpdateService implements OnApplicationShutdown {
 		private userEntityService: UserEntityService,
 		private noteEntityService: NoteEntityService,
 		private globalEventService: GlobalEventService,
-		private funoutTimelineService: FunoutTimelineService,
 		private relayService: RelayService,
 		private federatedInstanceService: FederatedInstanceService,
 		private apRendererService: ApRendererService,
@@ -79,10 +77,6 @@ export class NoteUpdateService implements OnApplicationShutdown {
 		}
 
 		const updatedNote = await this.updateNote(note, data);
-
-		if (data.visibility !== undefined) {
-			this.funoutTimelineService.purge('localTimeline');
-		}
 
 		setImmediate('post updating', { signal: this.#shutdownController.signal }).then(
 			() => this.postNoteUpdated(updatedNote, user, silent),
