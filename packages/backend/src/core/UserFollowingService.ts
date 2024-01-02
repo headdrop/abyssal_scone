@@ -28,7 +28,8 @@ import { MetaService } from '@/core/MetaService.js';
 import { CacheService } from '@/core/CacheService.js';
 import type { Config } from '@/config.js';
 import { AccountMoveService } from '@/core/AccountMoveService.js';
-import { FunoutTimelineService } from '@/core/FunoutTimelineService.js';
+import { UtilityService } from '@/core/UtilityService.js';
+import { FanoutTimelineService } from '@/core/FanoutTimelineService.js';
 import Logger from '../logger.js';
 
 const logger = new Logger('following/create');
@@ -82,7 +83,7 @@ export class UserFollowingService implements OnModuleInit {
 		private webhookService: WebhookService,
 		private apRendererService: ApRendererService,
 		private accountMoveService: AccountMoveService,
-		private funoutTimelineService: FunoutTimelineService,
+		private fanoutTimelineService: FanoutTimelineService,
 		private perUserFollowingChart: PerUserFollowingChart,
 		private instanceChart: InstanceChart,
 	) {
@@ -301,8 +302,6 @@ export class UserFollowingService implements OnModuleInit {
 					});
 				}
 			});
-
-			this.funoutTimelineService.purge(`homeTimeline:${follower.id}`);
 		}
 
 		// Publish followed event
@@ -370,8 +369,6 @@ export class UserFollowingService implements OnModuleInit {
 					});
 				}
 			});
-
-			this.funoutTimelineService.purge(`homeTimeline:${follower.id}`);
 		}
 
 		if (this.userEntityService.isLocalUser(follower) && this.userEntityService.isRemoteUser(followee)) {
