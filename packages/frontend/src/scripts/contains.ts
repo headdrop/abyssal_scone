@@ -9,7 +9,6 @@ export default (parent, child, checkSame = true) => {
 	let node = child.parentNode;
 	while (node) {
 		if (node === parent) return true;
-		if (node === null) return false;
 		node = node.parentNode;
 	}
 	return false;
