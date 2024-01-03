@@ -5,7 +5,7 @@
 
 export default (parent, child, checkSame = true) => {
 	if (checkSame && parent === child) return true;
-	if (child === null) return false;
+	if (!child) return false;
 	let node = child.parentNode;
 	while (node) {
 		if (node === parent) return true;
