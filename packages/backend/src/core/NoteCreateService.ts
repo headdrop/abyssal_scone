@@ -252,7 +252,7 @@ export class NoteCreateService implements OnApplicationShutdown {
 		if (user.host !== null) {
 			const instance = await this.instancesRepository.findOneBy({ host: this.utilityService.toPuny(user.host) });
 
-			if (instance !== null && instance.isSilenced) {
+			if (instance !== null && instance.isSilenced && (data.visibility === 'public')) {
 				data.visibility = 'home';
 			}
 		}
