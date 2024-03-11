@@ -21,6 +21,8 @@ import { bindThis } from '@/decorators.js';
 import { DB_MAX_NOTE_TEXT_LENGTH } from '@/const.js';
 import { MetaService } from '@/core/MetaService.js';
 import { SearchService } from '@/core/SearchService.js';
+import { ModerationLogService } from '@/core/ModerationLogService.js';
+import { FanoutTimelineService } from '@/core/FanoutTimelineService.js';
 
 type Option = {
 	cw?: string | null;
@@ -55,14 +57,16 @@ export class NoteUpdateService implements OnApplicationShutdown {
 		private apDeliverManagerService: ApDeliverManagerService,
 		private metaService: MetaService,
 		private searchService: SearchService,
+		private moderationLogService: ModerationLogService,
 		private notesChart: NotesChart,
 		private perUserNotesChart: PerUserNotesChart,
 		private instanceChart: InstanceChart,
 		private activeUsersChart: ActiveUsersChart,
-	) {}
+		private fanoutTimelineService: FanoutTimelineService,
+	) { }
 
 	@bindThis
-	public async update(user: { id: MiUser['id']; uri: MiUser['uri']; host: MiUser['host']; username: MiUser['username']; isBot: MiUser['isBot']; }, note: MiNote, data: Option, silent = false) {
+	public async update(user: { id: MiUser['id']; uri: MiUser['uri']; host: MiUser['host']; username: MiUser['username']; isBot: MiUser['isBot']; }, note: MiNote, data: Option, silent = false, updater?: MiUser) {
 		this.globalEventService.publishNoteStream(note.id, 'updated', data);
 
 		if (data.visibility !== undefined) {
@@ -82,6 +86,25 @@ export class NoteUpdateService implements OnApplicationShutdown {
 			() => this.postNoteUpdated(updatedNote, user, silent),
 			() => { /* aborted, ignore this */ },
 		);
+
+		// Update redis timeline
+		const meta = await this.metaService.fetch();
+		if (meta.enableFanoutTimeline) {
+			this.fanoutTimelineService.remove('localTimeline', note.id);
+			this.fanoutTimelineService.remove('localTimelineWithFiles', note.id);
+			this.fanoutTimelineService.remove('localTimelineWithReplies', note.id);
+		}
+
+		if (updater && (note.userId !== updater.id)) {
+			const user = await this.usersRepository.findOneByOrFail({ id: note.userId });
+			this.moderationLogService.log(updater, 'updateNote', {
+				noteId: note.id,
+				noteUserId: note.userId,
+				noteUserUsername: user.username,
+				noteUserHost: user.host,
+				note: note,
+			});
+		}
 	}
 
 	@bindThis

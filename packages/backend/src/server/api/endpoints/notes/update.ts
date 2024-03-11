@@ -40,7 +40,7 @@ export const meta = {
 			message: 'Invalid param.',
 			code: 'INVALID_PARAM',
 			id: '3d81ceae-475f-4600-b2a8-2bc116157532',
-		}
+		},
 	},
 } as const;
 
@@ -95,7 +95,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> {
 				text: ps.text,
 				visibility: ps.visibility,
 				updatedAt: new Date(),
-			});
+			}, false, me);
 		});
 	}
 }
