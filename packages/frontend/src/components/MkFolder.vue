@@ -4,7 +4,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<div ref="rootEl" :class="$style.root" role="group" :aria-expanded="opened">
+<div ref="rootEl" :class="[$style.root, { [$style.danger]: danger }]" role="group" :aria-expanded="opened">
 	<MkStickyContainer>
 		<template #header>
 			<div :class="[$style.header, { [$style.opened]: opened }]" class="_button" role="button" data-cy-folder-header @click="toggle">
@@ -54,9 +54,11 @@ import { nextTick, onMounted, shallowRef, ref } from 'vue';
 import { defaultStore } from '@/store.js';
 
 const props = withDefaults(defineProps<{
+	danger?: boolean;
 	defaultOpen?: boolean;
 	maxHeight?: number | null;
 }>(), {
+	danger: false,
 	defaultOpen: false,
 	maxHeight: null,
 });
@@ -128,6 +130,10 @@ onMounted(() => {
 
 .root {
 	display: block;
+
+	&.danger {
+		color: #ff2a2a;
+	}
 }
 
 .header {
