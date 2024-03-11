@@ -5,6 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <template>
 <div v-if="!muted" :class="[$style.root, { [$style.children]: depth > 1 }]">
+	<div :class="[{[$style.bar]: depth === 1}]"></div>
 	<div :class="$style.main">
 		<div v-if="note.channel" :class="$style.colorBar" :style="{ background: note.channel.color }"></div>
 		<MkAvatar :class="$style.avatar" :user="note.user" link preview/>
@@ -84,9 +85,17 @@ if (props.detail) {
 	position: relative;
 
 	&.children {
-		padding: 10px 0 0 16px;
+		padding: 10px 0 0 0;
 		font-size: 1em;
 	}
+}
+
+.bar {
+	top: 16px;
+	bottom: 16px;
+	left: 51px;
+	position: absolute;
+	border-left: solid 0.5px var(--divider);
 }
 
 .main {
@@ -135,12 +144,11 @@ if (props.detail) {
 }
 
 .reply, .more {
-	border-left: solid 0.5px var(--divider);
-	margin-top: 10px;
+	margin: 10px 0;
 }
 
 .more {
-	padding: 10px 0 0 16px;
+	padding: 10px 0 0 32px;
 }
 
 @container (max-width: 450px) {
