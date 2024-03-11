@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: syuilo and other misskey contributors
+SPDX-FileCopyrightText: syuilo and misskey-project
 SPDX-License-Identifier: AGPL-3.0-only
 -->
 
@@ -26,6 +26,7 @@ import MkButton from '@/components/MkButton.vue';
 import MkTextarea from '@/components/MkTextarea.vue';
 import FormSuspense from '@/components/form/suspense.vue';
 import * as os from '@/os.js';
+import { misskeyApi } from '@/scripts/misskey-api.js';
 import { fetchInstance } from '@/instance.js';
 import { i18n } from '@/i18n.js';
 import { definePageMetadata } from '@/scripts/page-metadata.js';
@@ -34,7 +35,7 @@ const blockedHosts = ref<string>('');
 const tab = ref('block');
 
 async function init() {
-	const meta = await os.api('admin/meta');
+	const meta = await misskeyApi('admin/meta');
 	blockedHosts.value = meta.blockedHosts.join('\n');
 }
 
@@ -43,7 +44,7 @@ function save() {
 		blockedHosts: blockedHosts.value.split('\n') || [],
 
 	}).then(() => {
-		fetchInstance();
+		fetchInstance(true);
 	});
 }
 
@@ -55,8 +56,8 @@ const headerTabs = computed(() => [{
 	icon: 'ti ti-ban',
 }]);
 
-definePageMetadata({
+definePageMetadata(() => ({
 	title: i18n.ts.instanceBlocking,
 	icon: 'ti ti-ban',
-});
+}));
 </script>
