@@ -159,6 +159,10 @@ export const packedRolePoliciesSchema = {
 			type: 'boolean',
 			optional: false, nullable: false,
 		},
+		ignoreServerSilence: {
+			type: 'boolean',
+			optional: false, nullable: false,
+		},
 		canPublicNote: {
 			type: 'boolean',
 			optional: false, nullable: false,

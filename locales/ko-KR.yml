@@ -1645,6 +1645,7 @@ _role:
   _options:
     gtlAvailable: "글로벌 타임라인 보이기"
     ltlAvailable: "로컬 타임라인 보이기"
+    ignoreServerSilence: "서버 사일런스 무시"
     canPublicNote: "공개 노트 허용"
     canEditNote: "노트 편집 허용"
     canInvite: "서버 초대 코드 발행"

@@ -4673,6 +4673,7 @@ export type components = {
     RolePolicies: {
       gtlAvailable: boolean;
       ltlAvailable: boolean;
+      ignoreServerSilence: boolean;
       canPublicNote: boolean;
       mentionLimit: number;
       canInvite: boolean;
