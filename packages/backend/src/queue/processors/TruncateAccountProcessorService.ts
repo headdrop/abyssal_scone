@@ -4,7 +4,7 @@
  */
 
 import { Inject, Injectable } from '@nestjs/common';
-import { And, In, MoreThan, Not } from 'typeorm';
+import { Brackets, And, In, MoreThan, Not } from 'typeorm';
 import { DI } from '@/di-symbols.js';
 import type { DriveFilesRepository, NotesRepository, UserNotePiningsRepository, UsersRepository } from '@/models/_.js';
 import type Logger from '@/logger.js';
@@ -52,14 +52,16 @@ export class TruncateAccountProcessorService {
 
 		const pinings = await this.userNotePiningsRepository.findBy({ userId: user.id });
 		const piningNoteIds = pinings.map(pining => pining.noteId); // pining.note always undefined (bug?)
+		const cascadingPiningNoteIds = piningNoteIds.length !== 0 ? await this.findCascadingNotes(piningNoteIds) : [];
 
 		const specifiedNotes = await this.notesRepository.findBy({
 			userId: user.id,
 			visibility: Not(In(['public', 'home', 'followers'])),
 		});
 		const specifiedNoteIds = specifiedNotes.map(note => note.id);
+		const cascadingSpecifiedNoteIds = specifiedNoteIds.length !== 0 ? await this.findCascadingNotes(specifiedNoteIds) : [];
 
-		const keepFileIds = (await Promise.all([...piningNoteIds, ...specifiedNoteIds].map(async (noteId) => {
+		const keepFileIds = (await Promise.all([...piningNoteIds, ...cascadingPiningNoteIds, ...specifiedNoteIds, ...cascadingSpecifiedNoteIds].map(async (noteId) => {
 			const note = await this.notesRepository.findOneBy({ id: noteId });
 
 			return note?.fileIds;
@@ -73,9 +75,9 @@ export class TruncateAccountProcessorService {
 					where: {
 						userId: user.id,
 						...(cursor ? {
-							id: And(Not(In([...piningNoteIds, ...specifiedNoteIds])), MoreThan(cursor)),
+							id: And(Not(In([...piningNoteIds, ...cascadingPiningNoteIds, ...specifiedNoteIds, ...cascadingSpecifiedNoteIds])), MoreThan(cursor)),
 						} : {
-							id: Not(In([...piningNoteIds, ...specifiedNoteIds])),
+							id: Not(In([...piningNoteIds, ...cascadingPiningNoteIds, ...specifiedNoteIds, ...cascadingSpecifiedNoteIds])),
 						}),
 					},
 					take: 100,
@@ -132,5 +134,27 @@ export class TruncateAccountProcessorService {
 		}
 
 		return 'Account notes and drives are truncated';
+	}
+
+	@bindThis
+	private async findCascadingNotes(noteIds: MiNote['id'][]): Promise<MiNote['id'][]> {
+		const recursive = async (noteIds: MiNote['id'][]): Promise<MiNote['id'][]> => {
+			const query = this.notesRepository.createQueryBuilder('note')
+				.where('note.replyId IN(:...noteIds)', { noteIds })
+				.orWhere(new Brackets(q => {
+					q.where('note.renoteId IN(:...noteIds)', { noteIds })
+						.andWhere('note.text IS NOT NULL');
+				}));
+			const replies = await query.getMany();
+
+			return [
+				...replies.map((reply) => reply.id),
+				...await Promise.all(replies.map(reply => recursive([reply.id]))),
+			].flat();
+		};
+
+		const cascadingNotes: MiNote['id'][] = await recursive(noteIds);
+
+		return cascadingNotes;
 	}
 }
