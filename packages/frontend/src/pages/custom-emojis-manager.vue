@@ -30,7 +30,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 						<template #empty><span>{{ i18n.ts.noCustomEmojis }}</span></template>
 						<template #default="{items}">
 							<div class="ldhfsamy">
-								<button v-for="emoji in items" :key="emoji.id" class="emoji _panel _button" :class="{ selected: selectedEmojis.includes(emoji.id) }" @click="selectMode ? toggleSelect(emoji) : edit(emoji)">
+								<button v-for="emoji in items" :key="emoji.id" class="emoji _panel _button" :class="{ selected: selectedEmojis.includes(emoji.id), sensitive: emoji.isSensitive }" @click="selectMode ? toggleSelect(emoji) : edit(emoji)">
 									<img :src="`/emoji/${emoji.name}.webp`" class="img" :alt="emoji.name"/>
 									<div class="body">
 										<div class="name _monospace">{{ emoji.name }}</div>
@@ -56,7 +56,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 						<template #empty><span>{{ i18n.ts.noCustomEmojis }}</span></template>
 						<template #default="{items}">
 							<div class="ldhfsamy">
-								<div v-for="emoji in items" :key="emoji.id" class="emoji _panel _button" @click="remoteMenu(emoji, $event)">
+								<div v-for="emoji in items" :key="emoji.id" class="emoji _panel _button" :class="{ sensitive: emoji.isSensitive }" @click="remoteMenu(emoji, $event)">
 									<img :src="`/emoji/${emoji.name}@${emoji.host}.webp`" class="img" :alt="emoji.name"/>
 									<div class="body">
 										<div class="name _monospace">{{ emoji.name }}</div>
@@ -339,6 +339,10 @@ definePageMetadata(() => ({
 					border-color: var(--accent);
 				}
 
+				&.sensitive {
+					background: var(--infoWarnBg);
+				}
+
 				> .img {
 					width: 42px;
 					height: 42px;
@@ -383,6 +387,10 @@ definePageMetadata(() => ({
 
 				&:hover {
 					color: var(--accent);
+				}
+
+				&.sensitive {
+					background: var(--infoWarnBg);
 				}
 
 				> .img {

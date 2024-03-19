@@ -481,6 +481,7 @@ export class ApNoteService {
 						originalUrl: tag.icon.url,
 						publicUrl: tag.icon.url,
 						updatedAt: new Date(),
+						isSensitive: tag.sensitive,
 					});
 
 					const emoji = await this.emojisRepository.findOneBy({ host, name });
@@ -501,6 +502,7 @@ export class ApNoteService {
 				originalUrl: tag.icon.url,
 				publicUrl: tag.icon.url,
 				updatedAt: new Date(),
+				isSensitive: tag.sensitive,
 				aliases: [],
 			}).then(x => this.emojisRepository.findOneByOrFail(x.identifiers[0]));
 		}));
