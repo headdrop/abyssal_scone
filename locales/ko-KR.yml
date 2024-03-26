@@ -738,6 +738,7 @@ noCrawleDescription: "검색엔진에 사용자 페이지, 노트, 페이지 등
 lockedAccountInfo: "팔로우를 승인으로 승인받더라도 노트의 공개 범위를 '팔로워'로 하지 않는 한 누구나 당신의 노트를 볼 수 있습니다."
 alwaysMarkSensitive: "미디어를 항상 열람 주의로 설정"
 loadRawImages: "첨부한 이미지의 썸네일을 원본화질로 표시"
+rememberScrollLatestReadNote: "이전까지 읽은 노트 위치 기억"
 disableShowingAnimatedImages: "움직이는 이미지를 자동으로 재생하지 않음"
 highlightSensitiveMedia: "미디어가 민감한 내용이라는 것을 알기 쉽게 표시"
 verificationEmailSent: "확인 메일을 발송하였습니다. 설정을 완료하려면 메일에 첨부된 링크를 확인해 주세요."

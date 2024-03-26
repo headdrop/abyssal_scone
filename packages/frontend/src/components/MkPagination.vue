@@ -223,6 +223,10 @@ async function init(): Promise<void> {
 			more.value = true;
 		}
 
+		if (props.pagination.endpoint === 'notes/timeline') {
+			fetchMore(true);
+		}
+
 		offset.value = res.length;
 		error.value = false;
 		fetching.value = false;
@@ -236,12 +240,13 @@ const reload = (): Promise<void> => {
 	return init();
 };
 
-const fetchMore = async (): Promise<void> => {
-	if (!more.value || fetching.value || moreFetching.value || items.value.size === 0) return;
+const fetchMore = async (bypass = false): Promise<void> => {
+	if (!bypass && (!more.value || fetching.value || moreFetching.value || items.value.size === 0)) return;
 	moreFetching.value = true;
 	const params = props.pagination.params ? isRef(props.pagination.params) ? props.pagination.params.value : props.pagination.params : {};
 	await misskeyApi<MisskeyEntity[]>(props.pagination.endpoint, {
 		...params,
+		...(bypass ? { sinceId: undefined } : null),
 		limit: SECOND_FETCH_LIMIT,
 		...(props.pagination.offsetMode ? {
 			offset: offset.value,

@@ -9,6 +9,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	v-show="!isDeleted"
 	ref="rootEl"
 	v-hotkey="keymap"
+	v-intersection-observer="onIntersectionObserver"
 	:class="[$style.root, { [$style.showActionsOnlyHover]: defaultStore.state.showNoteActionsOnlyHover }]"
 	:tabindex="!isDeleted ? '-1' : undefined"
 	@click="nav($event, notePage(note))"
@@ -162,6 +163,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 import { computed, inject, onMounted, ref, shallowRef, Ref, watch, provide } from 'vue';
 import * as mfm from 'mfm-js';
 import * as Misskey from 'misskey-js';
+import { vIntersectionObserver } from '@vueuse/components';
 import MkNoteSub from '@/components/MkNoteSub.vue';
 import MkNoteHeader from '@/components/MkNoteHeader.vue';
 import MkNoteSimple from '@/components/MkNoteSimple.vue';
@@ -195,6 +197,7 @@ import { MenuItem } from '@/types/menu.js';
 import MkRippleEffect from '@/components/MkRippleEffect.vue';
 import { showMovedDialog } from '@/scripts/show-moved-dialog.js';
 import { shouldCollapsed } from '@/scripts/collapsed.js';
+import { miLocalStorage } from '@/local-storage.js';
 
 const props = withDefaults(defineProps<{
 	note: Misskey.entities.Note;
@@ -271,6 +274,26 @@ const renoteCollapsed = ref(
 		(appearNote.value.myReaction != null)
 	),
 );
+
+if (defaultStore.state.rememberScrollLatestReadNote) {
+	onMounted(async () => {
+		const initialLatestViewNoteId = miLocalStorage.getItem('latestViewNoteId');
+
+		if (rootEl.value && (initialLatestViewNoteId === appearNote.value.id)) {
+			rootEl.value.scrollIntoView();
+		}
+	});
+}
+
+function onIntersectionObserver([{ isIntersecting }]: IntersectionObserverEntry[]) {
+	if (isIntersecting) {
+		const latestViewNoteId = miLocalStorage.getItem('latestViewNoteId');
+
+		if (!latestViewNoteId || (latestViewNoteId < note.value.id)) {
+			miLocalStorage.setItem('latestViewNoteId', note.value.id);
+		}
+	}
+}
 
 /* Overload FunctionにLintが対応していないのでコメントアウト
 function checkMute(noteToCheck: Misskey.entities.Note, mutedWords: Array<string | string[]> | undefined | null, checkOnly: true): boolean;

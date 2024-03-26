@@ -235,6 +235,10 @@ export const defaultStore = markRaw(new Storage('base', {
 		where: 'device',
 		default: false,
 	},
+	rememberScrollLatestReadNote: {
+		where: 'device',
+		default: false,
+	},
 	imageNewTab: {
 		where: 'device',
 		default: false,

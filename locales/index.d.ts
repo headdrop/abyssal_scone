@@ -2961,6 +2961,10 @@ export interface Locale extends ILocale {
      */
     "loadRawImages": string;
     /**
+     * 以前に読んだノートの位置を記憶する
+     */
+    "rememberScrollLatestReadNote": string;
+    /**
      * アニメーション画像を再生しない
      */
     "disableShowingAnimatedImages": string;
