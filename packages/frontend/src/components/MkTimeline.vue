@@ -178,7 +178,7 @@ function updatePaginationQuery() {
 		query = {
 			withRenotes: props.withRenotes,
 			withFiles: props.onlyFiles ? true : undefined,
-			...(isFirstLoadTimeline.value ? { sinceId: latestViewNoteId ?? undefined } : undefined),
+			...(defaultStore.state.rememberScrollLatestReadNote && isFirstLoadTimeline.value ? { sinceId: latestViewNoteId ?? undefined } : undefined),
 		};
 
 		if (isFirstLoadTimeline.value) {

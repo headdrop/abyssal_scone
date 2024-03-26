@@ -223,7 +223,7 @@ async function init(): Promise<void> {
 			more.value = true;
 		}
 
-		if (props.pagination.endpoint === 'notes/timeline') {
+		if (defaultStore.state.rememberScrollLatestReadNote && res.length === 0 && props.pagination.endpoint === 'notes/timeline') {
 			fetchMore(true);
 		}
 
