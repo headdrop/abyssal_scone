@@ -50,6 +50,7 @@ import { misskeyApi } from '@/scripts/misskey-api.js';
 import { onScrollTop, isTopVisible, getBodyScrollHeight, getScrollContainer, onScrollBottom, scrollToBottom, scroll, isBottomVisible } from '@/scripts/scroll.js';
 import { useDocumentVisibility } from '@/scripts/use-document-visibility.js';
 import { defaultStore } from '@/store.js';
+import { miLocalStorage } from '@/local-storage.js';
 import { MisskeyEntity } from '@/types/date-separated-list.js';
 import { i18n } from '@/i18n.js';
 
@@ -223,8 +224,8 @@ async function init(): Promise<void> {
 			more.value = true;
 		}
 
-		if (defaultStore.state.rememberScrollLatestReadNote && res.length === 0 && props.pagination.endpoint === 'notes/timeline') {
-			fetchMore(true);
+		if (defaultStore.state.rememberScrollLatestReadNote && props.pagination.endpoint === 'notes/timeline') {
+			fetchUntilShowingLatestReadNote();
 		}
 
 		offset.value = res.length;
@@ -240,13 +241,27 @@ const reload = (): Promise<void> => {
 	return init();
 };
 
-const fetchMore = async (bypass = false): Promise<void> => {
-	if (!bypass && (!more.value || fetching.value || moreFetching.value || items.value.size === 0)) return;
+const fetchUntilShowingLatestReadNote = async (recursiveCount = 1): Promise<void> => {
+	if (recursiveCount > 10) return;
+
+	await fetchMore();
+
+	if (items.value.size === 0) return;
+	const latestViewNoteId = miLocalStorage.getItem('latestViewNoteId');
+
+	if (latestViewNoteId) {
+		if (Array.from(items.value.keys()).indexOf(latestViewNoteId) === -1) {
+			await fetchUntilShowingLatestReadNote(recursiveCount + 1);
+		}
+	}
+};
+
+const fetchMore = async (): Promise<void> => {
+	if (!more.value || fetching.value || moreFetching.value || items.value.size === 0) return;
 	moreFetching.value = true;
 	const params = props.pagination.params ? isRef(props.pagination.params) ? props.pagination.params.value : props.pagination.params : {};
 	await misskeyApi<MisskeyEntity[]>(props.pagination.endpoint, {
 		...params,
-		...(bypass ? { sinceId: undefined } : null),
 		limit: SECOND_FETCH_LIMIT,
 		...(props.pagination.offsetMode ? {
 			offset: offset.value,

@@ -17,7 +17,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import { computed, watch, onUnmounted, provide, ref, shallowRef } from 'vue';
+import { computed, watch, onUnmounted, provide, shallowRef } from 'vue';
 import * as Misskey from 'misskey-js';
 import MkNotes from '@/components/MkNotes.vue';
 import MkPullToRefresh from '@/components/MkPullToRefresh.vue';
@@ -26,7 +26,6 @@ import * as sound from '@/scripts/sound.js';
 import { $i } from '@/account.js';
 import { instance } from '@/instance.js';
 import { defaultStore } from '@/store.js';
-import { miLocalStorage } from '@/local-storage.js';
 import { Paging } from '@/components/MkPagination.vue';
 
 const props = withDefaults(defineProps<{
@@ -62,10 +61,7 @@ type TimelineQueryType = {
   listId?: string,
   channelId?: string,
   roleId?: string
-  sinceId?: string,
 }
-
-const isFirstLoadTimeline = ref<boolean>(true);
 
 const prComponent = shallowRef<InstanceType<typeof MkPullToRefresh>>();
 const tlComponent = shallowRef<InstanceType<typeof MkNotes>>();
@@ -172,18 +168,11 @@ function updatePaginationQuery() {
 			antennaId: props.antenna,
 		};
 	} else if (props.src === 'home') {
-		const latestViewNoteId = miLocalStorage.getItem('latestViewNoteId');
-
 		endpoint = 'notes/timeline';
 		query = {
 			withRenotes: props.withRenotes,
 			withFiles: props.onlyFiles ? true : undefined,
-			...(defaultStore.state.rememberScrollLatestReadNote && isFirstLoadTimeline.value ? { sinceId: latestViewNoteId ?? undefined } : undefined),
 		};
-
-		if (isFirstLoadTimeline.value) {
-			isFirstLoadTimeline.value = false;
-		}
 	} else if (props.src === 'local') {
 		endpoint = 'notes/local-timeline';
 		query = {

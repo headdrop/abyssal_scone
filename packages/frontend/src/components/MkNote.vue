@@ -204,6 +204,7 @@ const props = withDefaults(defineProps<{
 	pinned?: boolean;
 	mock?: boolean;
 	withHardMute?: boolean;
+	latestViewNoteId?: string;
 }>(), {
 	mock: false,
 });
@@ -274,22 +275,21 @@ const renoteCollapsed = ref(
 		(appearNote.value.myReaction != null)
 	),
 );
+let debounceObserver = false;
 
 if (defaultStore.state.rememberScrollLatestReadNote) {
 	onMounted(async () => {
-		const initialLatestViewNoteId = miLocalStorage.getItem('latestViewNoteId');
-
-		if (rootEl.value && (initialLatestViewNoteId === appearNote.value.id)) {
+		if (rootEl.value && (props.latestViewNoteId === appearNote.value.id)) {
 			rootEl.value.scrollIntoView();
 		}
 	});
+
+	window.setTimeout(() => {debounceObserver = true;}, 1000);
 }
 
 function onIntersectionObserver([{ isIntersecting }]: IntersectionObserverEntry[]) {
-	if (isIntersecting) {
-		const latestViewNoteId = miLocalStorage.getItem('latestViewNoteId');
-
-		if (!latestViewNoteId || (latestViewNoteId < note.value.id)) {
+	if (isIntersecting && (debounceObserver === true)) {
+		if (!props.latestViewNoteId || (props.latestViewNoteId < note.value.id)) {
 			miLocalStorage.setItem('latestViewNoteId', note.value.id);
 		}
 	}
