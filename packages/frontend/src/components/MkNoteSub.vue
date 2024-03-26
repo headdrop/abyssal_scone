@@ -156,8 +156,12 @@ if (props.detail) {
 		padding: 14px 16px;
 
 		&.children {
-			padding: 10px 0 0 8px;
+			padding: 10px 0 0 0;
 		}
+	}
+
+	.bar {
+		left: 35px;
 	}
 }
 
