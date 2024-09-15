@@ -1,6 +1,6 @@
 {
 	"name": "misskey",
-	"version": "2024.8.0+bscone.a",
+	"version": "2024.8.0+bscone.b",
 	"codename": "nasubi",
 	"repository": {
 		"type": "git",

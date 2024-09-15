@@ -977,6 +977,10 @@ export interface Locale extends ILocale {
      */
     "mutedUsers": string;
     /**
+     * ミュートしたユーザーを匿名化
+     */
+    "deidentifyMutedUsers": string;
+    /**
      * ブロックしたユーザー
      */
     "blockedUsers": string;
