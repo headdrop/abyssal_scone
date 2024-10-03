@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import { Inject, Injectable, OnModuleInit, forwardRef } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { IsNull } from 'typeorm';
 import type { MiLocalUser, MiPartialLocalUser, MiPartialRemoteUser, MiRemoteUser, MiUser } from '@/models/User.js';
@@ -13,23 +13,19 @@ import PerUserFollowingChart from '@/core/chart/charts/per-user-following.js';
 import { GlobalEventService } from '@/core/GlobalEventService.js';
 import { IdService } from '@/core/IdService.js';
 import { isDuplicateKeyValueError } from '@/misc/is-duplicate-key-value-error.js';
-import type { Packed } from '@/misc/json-schema.js';
 import InstanceChart from '@/core/chart/charts/instance.js';
 import { FederatedInstanceService } from '@/core/FederatedInstanceService.js';
 import { UserWebhookService } from '@/core/UserWebhookService.js';
 import { NotificationService } from '@/core/NotificationService.js';
 import { DI } from '@/di-symbols.js';
-import type { FollowingsRepository, FollowRequestsRepository, InstancesRepository, UserProfilesRepository, UsersRepository } from '@/models/_.js';
+import type { FollowingsRepository, FollowRequestsRepository, InstancesRepository, MiMeta, UserProfilesRepository, UsersRepository } from '@/models/_.js';
 import { UserEntityService } from '@/core/entities/UserEntityService.js';
 import { ApRendererService } from '@/core/activitypub/ApRendererService.js';
 import { bindThis } from '@/decorators.js';
 import { UserBlockingService } from '@/core/UserBlockingService.js';
-import { MetaService } from '@/core/MetaService.js';
 import { CacheService } from '@/core/CacheService.js';
 import type { Config } from '@/config.js';
 import { AccountMoveService } from '@/core/AccountMoveService.js';
-import { UtilityService } from '@/core/UtilityService.js';
-import { FanoutTimelineService } from '@/core/FanoutTimelineService.js';
 import type { ThinUser } from '@/queue/types.js';
 import Logger from '../logger.js';
 
@@ -58,6 +54,9 @@ export class UserFollowingService implements OnModuleInit {
 		@Inject(DI.config)
 		private config: Config,
 
+		@Inject(DI.meta)
+		private meta: MiMeta,
+
 		@Inject(DI.usersRepository)
 		private usersRepository: UsersRepository,
 
@@ -78,13 +77,11 @@ export class UserFollowingService implements OnModuleInit {
 		private idService: IdService,
 		private queueService: QueueService,
 		private globalEventService: GlobalEventService,
-		private metaService: MetaService,
 		private notificationService: NotificationService,
 		private federatedInstanceService: FederatedInstanceService,
 		private webhookService: UserWebhookService,
 		private apRendererService: ApRendererService,
 		private accountMoveService: AccountMoveService,
-		private fanoutTimelineService: FanoutTimelineService,
 		private perUserFollowingChart: PerUserFollowingChart,
 		private instanceChart: InstanceChart,
 	) {
@@ -164,8 +161,7 @@ export class UserFollowingService implements OnModuleInit {
 		const followeeProfile = await this.userProfilesRepository.findOneByOrFail({ userId: followee.id });
 
 		// フォロー対象が鍵アカウントである or
-		// フォロワーがBotであり、フォロー対象がBotからのフォローに慎重である or
-		// フォロワーがローカルユーザーであり、フォロー対象がリモートユーザーである
+		// フォロワーがBotであり、フォロー対象がBotからのフォローに慎重である
 		// 上記のいずれかに当てはまる場合はすぐフォローせずにフォローリクエストを発行しておく
 		if (
 			followee.isLocked ||
@@ -275,15 +271,18 @@ export class UserFollowingService implements OnModuleInit {
 				followeeId: followee.id,
 				followerId: follower.id,
 			});
-
-			// 通知を作成
-			if (follower.host === null) {
-				this.notificationService.createNotification(follower.id, 'followRequestAccepted', {
-				}, followee.id);
-			}
 		}
 
 		if (alreadyFollowed) return;
+
+		// 通知を作成
+		if (follower.host === null) {
+			const profile = await this.cacheService.userProfileCache.fetch(followee.id);
+
+			this.notificationService.createNotification(follower.id, 'followRequestAccepted', {
+				message: profile.followedMessage,
+			}, followee.id);
+		}
 
 		this.globalEventService.publishInternalEvent('follow', { followerId: follower.id, followeeId: followee.id });
 
@@ -305,14 +304,14 @@ export class UserFollowingService implements OnModuleInit {
 			if (this.userEntityService.isRemoteUser(follower) && this.userEntityService.isLocalUser(followee)) {
 				this.federatedInstanceService.fetch(follower.host).then(async i => {
 					this.instancesRepository.increment({ id: i.id }, 'followingCount', 1);
-					if ((await this.metaService.fetch()).enableChartsForFederatedInstances) {
+					if (this.meta.enableChartsForFederatedInstances) {
 						this.instanceChart.updateFollowing(i.host, true);
 					}
 				});
 			} else if (this.userEntityService.isLocalUser(follower) && this.userEntityService.isRemoteUser(followee)) {
 				this.federatedInstanceService.fetch(followee.host).then(async i => {
 					this.instancesRepository.increment({ id: i.id }, 'followersCount', 1);
-					if ((await this.metaService.fetch()).enableChartsForFederatedInstances) {
+					if (this.meta.enableChartsForFederatedInstances) {
 						this.instanceChart.updateFollowers(i.host, true);
 					}
 				});
@@ -437,14 +436,14 @@ export class UserFollowingService implements OnModuleInit {
 			if (this.userEntityService.isRemoteUser(follower) && this.userEntityService.isLocalUser(followee)) {
 				this.federatedInstanceService.fetch(follower.host).then(async i => {
 					this.instancesRepository.decrement({ id: i.id }, 'followingCount', 1);
-					if ((await this.metaService.fetch()).enableChartsForFederatedInstances) {
+					if (this.meta.enableChartsForFederatedInstances) {
 						this.instanceChart.updateFollowing(i.host, false);
 					}
 				});
 			} else if (this.userEntityService.isLocalUser(follower) && this.userEntityService.isRemoteUser(followee)) {
 				this.federatedInstanceService.fetch(followee.host).then(async i => {
 					this.instancesRepository.decrement({ id: i.id }, 'followersCount', 1);
-					if ((await this.metaService.fetch()).enableChartsForFederatedInstances) {
+					if (this.meta.enableChartsForFederatedInstances) {
 						this.instanceChart.updateFollowers(i.host, false);
 					}
 				});

@@ -13,6 +13,7 @@ import {
 import { AbuseReportNotificationService } from '@/core/AbuseReportNotificationService.js';
 import { SystemWebhookService } from '@/core/SystemWebhookService.js';
 import { UserSearchService } from '@/core/UserSearchService.js';
+import { WebhookTestService } from '@/core/WebhookTestService.js';
 import { AccountMoveService } from './AccountMoveService.js';
 import { AccountUpdateService } from './AccountUpdateService.js';
 import { AiService } from './AiService.js';
@@ -51,6 +52,7 @@ import { PollService } from './PollService.js';
 import { PushNotificationService } from './PushNotificationService.js';
 import { QueryService } from './QueryService.js';
 import { ReactionService } from './ReactionService.js';
+import { ReactionsBufferingService } from './ReactionsBufferingService.js';
 import { RelayService } from './RelayService.js';
 import { RoleService } from './RoleService.js';
 import { S3Service } from './S3Service.js';
@@ -196,6 +198,7 @@ const $ProxyAccountService: Provider = { provide: 'ProxyAccountService', useExis
 const $PushNotificationService: Provider = { provide: 'PushNotificationService', useExisting: PushNotificationService };
 const $QueryService: Provider = { provide: 'QueryService', useExisting: QueryService };
 const $ReactionService: Provider = { provide: 'ReactionService', useExisting: ReactionService };
+const $ReactionsBufferingService: Provider = { provide: 'ReactionsBufferingService', useExisting: ReactionsBufferingService };
 const $RelayService: Provider = { provide: 'RelayService', useExisting: RelayService };
 const $RoleService: Provider = { provide: 'RoleService', useExisting: RoleService };
 const $S3Service: Provider = { provide: 'S3Service', useExisting: S3Service };
@@ -215,6 +218,7 @@ const $UserAuthService: Provider = { provide: 'UserAuthService', useExisting: Us
 const $VideoProcessingService: Provider = { provide: 'VideoProcessingService', useExisting: VideoProcessingService };
 const $UserWebhookService: Provider = { provide: 'UserWebhookService', useExisting: UserWebhookService };
 const $SystemWebhookService: Provider = { provide: 'SystemWebhookService', useExisting: SystemWebhookService };
+const $WebhookTestService: Provider = { provide: 'WebhookTestService', useExisting: WebhookTestService };
 const $UtilityService: Provider = { provide: 'UtilityService', useExisting: UtilityService };
 const $FileInfoService: Provider = { provide: 'FileInfoService', useExisting: FileInfoService };
 const $SearchService: Provider = { provide: 'SearchService', useExisting: SearchService };
@@ -346,6 +350,7 @@ const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting
 		PushNotificationService,
 		QueryService,
 		ReactionService,
+		ReactionsBufferingService,
 		RelayService,
 		RoleService,
 		S3Service,
@@ -365,6 +370,7 @@ const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting
 		VideoProcessingService,
 		UserWebhookService,
 		SystemWebhookService,
+		WebhookTestService,
 		UtilityService,
 		FileInfoService,
 		SearchService,
@@ -492,6 +498,7 @@ const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting
 		$PushNotificationService,
 		$QueryService,
 		$ReactionService,
+		$ReactionsBufferingService,
 		$RelayService,
 		$RoleService,
 		$S3Service,
@@ -511,6 +518,7 @@ const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting
 		$VideoProcessingService,
 		$UserWebhookService,
 		$SystemWebhookService,
+		$WebhookTestService,
 		$UtilityService,
 		$FileInfoService,
 		$SearchService,
@@ -639,6 +647,7 @@ const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting
 		PushNotificationService,
 		QueryService,
 		ReactionService,
+		ReactionsBufferingService,
 		RelayService,
 		RoleService,
 		S3Service,
@@ -658,6 +667,7 @@ const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting
 		VideoProcessingService,
 		UserWebhookService,
 		SystemWebhookService,
+		WebhookTestService,
 		UtilityService,
 		FileInfoService,
 		SearchService,
@@ -784,6 +794,7 @@ const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting
 		$PushNotificationService,
 		$QueryService,
 		$ReactionService,
+		$ReactionsBufferingService,
 		$RelayService,
 		$RoleService,
 		$S3Service,
@@ -803,6 +814,7 @@ const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting
 		$VideoProcessingService,
 		$UserWebhookService,
 		$SystemWebhookService,
+		$WebhookTestService,
 		$UtilityService,
 		$FileInfoService,
 		$SearchService,

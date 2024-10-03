@@ -7,12 +7,10 @@ import { Inject, Injectable } from '@nestjs/common';
 import si from 'systeminformation';
 import Xev from 'xev';
 import * as osUtils from 'os-utils';
-import * as Redis from 'ioredis';
-import { DI } from '@/di-symbols.js';
 import { bindThis } from '@/decorators.js';
-import { MetaService } from '@/core/MetaService.js';
-import type { GlobalEvents } from '@/core/GlobalEventService.js';
 import type { OnApplicationShutdown } from '@nestjs/common';
+import { MiMeta } from '@/models/_.js';
+import { DI } from '@/di-symbols.js';
 
 const ev = new Xev();
 
@@ -26,33 +24,9 @@ export class ServerStatsService implements OnApplicationShutdown {
 	private intervalId: NodeJS.Timeout | null = null;
 
 	constructor(
-		@Inject(DI.redisForSub)
-		private redisForSub: Redis.Redis,
-
-		private metaService: MetaService,
+		@Inject(DI.meta)
+		private meta: MiMeta,
 	) {
-		this.redisForSub.on('message', this.onMessage);
-	}
-
-	@bindThis
-	private async onMessage(_: string, data: string): Promise<void> {
-		const obj = JSON.parse(data);
-
-		if (obj.channel === 'internal') {
-			const { type, body } = obj.message as GlobalEvents['internal']['payload'];
-			switch (type) {
-				case 'metaUpdated': {
-					if (body.enableServerMachineStats === true) {
-						await this.start();
-					} else {
-						this.dispose();
-					}
-					break;
-				}
-				default:
-					break;
-			}
-		}
 	}
 
 	/**
@@ -60,16 +34,12 @@ export class ServerStatsService implements OnApplicationShutdown {
 	 */
 	@bindThis
 	public async start(): Promise<void> {
-		if (!(await this.metaService.fetch(true)).enableServerMachineStats) return;
-		if (this.intervalId !== null) return;
+		if (!this.meta.enableServerMachineStats) return;
 
 		const log = [] as any[];
 
 		ev.on('requestServerStatsLog', x => {
-			// skip when service deactivated
-			if (this.intervalId === null) return;
-
-			ev.emit(`serverStatsLog:${x.id}`, log.slice(0, x.length ?? 50));
+			ev.emit(`serverStatsLog:${x.id}`, log.slice(0, x.length));
 		});
 
 		const tick = async () => {
@@ -107,7 +77,6 @@ export class ServerStatsService implements OnApplicationShutdown {
 	public dispose(): void {
 		if (this.intervalId) {
 			clearInterval(this.intervalId);
-			this.intervalId = null;
 		}
 	}
 
