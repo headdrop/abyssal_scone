@@ -70,18 +70,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 					<MkFolder>
 						<template #icon><i class="ti ti-eye-off"></i></template>
-						<template #label>{{ i18n.ts.silencedInstances }}</template>
-
-						<div class="_gaps">
-							<MkTextarea v-model="silencedHosts">
-								<template #caption>{{ i18n.ts.silencedInstancesDescription }}</template>
-							</MkTextarea>
-							<MkButton primary @click="save_silencedHosts">{{ i18n.ts.save }}</MkButton>
-						</div>
-					</MkFolder>
-
-					<MkFolder>
-						<template #icon><i class="ti ti-eye-off"></i></template>
 						<template #label>{{ i18n.ts.mediaSilencedInstances }}</template>
 
 						<div class="_gaps">
@@ -133,7 +121,6 @@ const prohibitedWords = ref<string>('');
 const hiddenTags = ref<string>('');
 const preservedUsernames = ref<string>('');
 const blockedHosts = ref<string>('');
-const silencedHosts = ref<string>('');
 const mediaSilencedHosts = ref<string>('');
 
 async function init() {
@@ -145,7 +132,6 @@ async function init() {
 	hiddenTags.value = meta.hiddenTags.join('\n');
 	preservedUsernames.value = meta.preservedUsernames.join('\n');
 	blockedHosts.value = meta.blockedHosts.join('\n');
-	silencedHosts.value = meta.silencedHosts.join('\n');
 	mediaSilencedHosts.value = meta.mediaSilencedHosts.join('\n');
 }
 
@@ -200,14 +186,6 @@ function save_hiddenTags() {
 function save_blockedHosts() {
 	os.apiWithDialog('admin/update-meta', {
 		blockedHosts: blockedHosts.value.split('\n') || [],
-	}).then(() => {
-		fetchInstance(true);
-	});
-}
-
-function save_silencedHosts() {
-	os.apiWithDialog('admin/update-meta', {
-		silencedHosts: silencedHosts.value.split('\n') || [],
 	}).then(() => {
 		fetchInstance(true);
 	});
