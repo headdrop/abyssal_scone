@@ -6,6 +6,7 @@
 import { VNode, h, SetupContext, provide, withModifiers } from 'vue';
 import * as mfm from 'mfm-js';
 import * as Misskey from 'misskey-js';
+import { host } from '@@/js/config.js';
 import MkUrl from '@/components/global/MkUrl.vue';
 import MkTime from '@/components/global/MkTime.vue';
 import MkLink from '@/components/MkLink.vue';
@@ -17,7 +18,6 @@ import MkCodeInline from '@/components/MkCodeInline.vue';
 import MkGoogle from '@/components/MkGoogle.vue';
 import MkSparkle from '@/components/MkSparkle.vue';
 import MkA, { MkABehavior } from '@/components/global/MkA.vue';
-import { host } from '@@/js/config.js';
 import { defaultStore } from '@/store.js';
 
 function safeParseFloat(str: unknown): number | null {
@@ -57,7 +57,8 @@ type MfmEvents = {
 
 // eslint-disable-next-line import/no-default-export
 export default function (props: MfmProps, { emit }: { emit: SetupContext<MfmEvents>['emit'] }) {
-	provide('linkNavigationBehavior', props.linkNavigationBehavior);
+	// こうしたいところだけど functional component 内では provide は使えない
+	//provide('linkNavigationBehavior', props.linkNavigationBehavior);
 
 	const isNote = props.isNote ?? true;
 	const shouldNyaize = props.nyaize ? props.nyaize === 'respect' ? props.author?.isCat : false : false;
@@ -353,6 +354,7 @@ export default function (props: MfmProps, { emit }: { emit: SetupContext<MfmEven
 					url: token.props.url,
 					rel: 'nofollow noopener',
 					onClick: withModifiers(() => { }, ['stop']),
+					navigationBehavior: props.linkNavigationBehavior,
 				})];
 			}
 
@@ -362,6 +364,7 @@ export default function (props: MfmProps, { emit }: { emit: SetupContext<MfmEven
 					url: token.props.url,
 					rel: 'nofollow noopener',
 					onClick: withModifiers(() => { }, ['stop']),
+					navigationBehavior: props.linkNavigationBehavior,
 				}, genEl(token.children, scale, true))];
 			}
 
@@ -371,6 +374,7 @@ export default function (props: MfmProps, { emit }: { emit: SetupContext<MfmEven
 					host: (token.props.host == null && props.author && props.author.host != null ? props.author.host : token.props.host) ?? host,
 					username: token.props.username,
 					onClick: withModifiers(() => { }, ['stop']),
+					navigationBehavior: props.linkNavigationBehavior,
 				})];
 			}
 
@@ -380,6 +384,7 @@ export default function (props: MfmProps, { emit }: { emit: SetupContext<MfmEven
 					to: isNote ? `/tags/${encodeURIComponent(token.props.hashtag)}` : `/user-tags/${encodeURIComponent(token.props.hashtag)}`,
 					style: 'color:var(--hashtag);',
 					onClick: withModifiers(() => { }, ['stop']),
+					behavior: props.linkNavigationBehavior,
 				}, `#${token.props.hashtag}`)];
 			}
 
