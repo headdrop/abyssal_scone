@@ -10,6 +10,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<div>
 			<Transition :name="defaultStore.state.animation ? 'fade' : ''" mode="out-in">
 				<div v-if="note">
+					<MkButton rounded @click="goBack()"><i class="ti ti-arrow-left"></i> {{ i18n.ts.goBack }}</MkButton>
+
 					<div v-if="showNext" class="_margin">
 						<MkNotes class="" :pagination="showNext === 'channel' ? nextChannelPagination : nextUserPagination" :noGap="true" :disableAutoLoad="true"/>
 					</div>
@@ -114,6 +116,10 @@ const nextChannelPagination: Paging = {
 		sinceId: note.value.id,
 	}) : undefined),
 };
+
+function goBack(): void {
+	history.back();
+}
 
 function fetchNote() {
 	showPrev.value = false;
