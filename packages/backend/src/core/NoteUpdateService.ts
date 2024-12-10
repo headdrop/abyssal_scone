@@ -88,22 +88,26 @@ export class NoteUpdateService implements OnApplicationShutdown {
 		);
 
 		// Update redis timeline
-		const meta = await this.metaService.fetch();
-		if (meta.enableFanoutTimeline) {
-			this.fanoutTimelineService.remove('localTimeline', note.id);
-			this.fanoutTimelineService.remove('localTimelineWithFiles', note.id);
-			this.fanoutTimelineService.remove('localTimelineWithReplies', note.id);
-		}
+		if (data.visibility !== undefined) {
+			if (data.visibility !== 'public') {
+				const meta = await this.metaService.fetch();
+				if (meta.enableFanoutTimeline) {
+					this.fanoutTimelineService.remove('localTimeline', note.id);
+					this.fanoutTimelineService.remove('localTimelineWithFiles', note.id);
+					this.fanoutTimelineService.remove('localTimelineWithReplies', note.id);
+				}
+			}
 
-		if (updater && (note.userId !== updater.id)) {
-			const user = await this.usersRepository.findOneByOrFail({ id: note.userId });
-			this.moderationLogService.log(updater, 'updateNote', {
-				noteId: note.id,
-				noteUserId: note.userId,
-				noteUserUsername: user.username,
-				noteUserHost: user.host,
-				note: note,
-			});
+			if (updater && (note.userId !== updater.id)) {
+				const user = await this.usersRepository.findOneByOrFail({ id: note.userId });
+				this.moderationLogService.log(updater, 'updateNote', {
+					noteId: note.id,
+					noteUserId: note.userId,
+					noteUserUsername: user.username,
+					noteUserHost: user.host,
+					note: note,
+				});
+			}
 		}
 	}
 
