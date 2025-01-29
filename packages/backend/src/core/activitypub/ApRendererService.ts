@@ -184,6 +184,9 @@ export class ApRendererService {
 				url: emoji.publicUrl || emoji.originalUrl,
 			},
 			sensitive: emoji.isSensitive,
+			_misskey_license: {
+				freeText: emoji.license,
+			},
 		};
 	}
 
