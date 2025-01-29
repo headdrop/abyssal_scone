@@ -92,7 +92,7 @@
 		"@sentry/profiling-node": "8.38.0",
 		"@simplewebauthn/server": "10.0.1",
 		"@sinonjs/fake-timers": "11.2.2",
-		"@smithy/node-http-handler": "2.5.0",
+		"@smithy/node-http-handler": "4.0.2",
 		"@swc/cli": "0.3.12",
 		"@swc/core": "1.9.2",
 		"@twemoji/parser": "15.1.1",
