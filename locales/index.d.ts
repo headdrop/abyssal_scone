@@ -5290,6 +5290,14 @@ export interface Locale extends ILocale {
      * " {emoji} " をリアクションしますか？
      */
     "reactAreYouSure": ParameterizedString<"emoji">;
+    /**
+     * このメディアをセンシティブとして設定しますか？
+     */
+    "markAsSensitiveConfirm": string;
+    /**
+     * このメディアのセンシティブ指定を解除しますか？
+     */
+    "unmarkAsSensitiveConfirm": string;
     "_accountSettings": {
         /**
          * コンテンツの表示にログインを必須にする
@@ -10116,6 +10124,10 @@ export interface Locale extends ILocale {
          * ギャラリーの投稿を削除
          */
         "deleteGalleryPost": string;
+        /**
+         * プロキシアカウントの説明を更新
+         */
+        "updateProxyAccountDescription": string;
     };
     "_fileViewer": {
         /**
