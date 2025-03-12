@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-export type Keys =
+export type Keys = (
 	'v' |
 	'lastVersion' |
 	'instance' |
@@ -41,6 +41,7 @@ export type Keys =
 	`channelLastReadedAt:${string}` |
 	'latestViewNoteId' |
 	`idbfallback::${string}`
+);
 
 // セッション毎に廃棄されるLocalStorage代替（セーフモードなどで使用できそう）
 //const safeSessionStorage = new Map<Keys, string>();
